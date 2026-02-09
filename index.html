@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gnosis Advisory | Strategic Advisory for Growth and Investment</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --navy: #0a2540;
+            --navy-light: #1a3a5c;
+            --gold: #c9a961;
+            --white: #ffffff;
+            --off-white: #f8f9fa;
+            --gray: #64748b;
+            --gray-light: #cbd5e1;
+        }
+
+        body {
+            font-family: 'Work Sans', sans-serif;
+            color: var(--navy);
+            line-height: 1.7;
+            background: var(--white);
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        /* Header/Navigation */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--gray-light);
+            z-index: 1000;
+            padding: 1.5rem 0;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: var(--navy);
+            text-decoration: none;
+        }
+
+        .contact-btn {
+            padding: 0.75rem 2rem;
+            background: var(--navy);
+            color: var(--white);
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .contact-btn:hover {
+            background: var(--navy-light);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(10, 37, 64, 0.2);
+        }
+
+        /* Hero Section */
+        .hero {
+            margin-top: 80px;
+            min-height: 85vh;
+            display: flex;
+            align-items: center;
+            background: #0a2540 !important;
+            color: #ffffff !important;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            color: #ffffff !important;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.85) !important;
+            margin-bottom: 2rem;
+            font-weight: 300;
+            animation: fadeInUp 0.8s ease 0.2s backwards;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+            animation: fadeInUp 0.8s ease 0.4s backwards;
+        }
+
+        .stat {
+            border-left: 3px solid #c9a961;
+            padding-left: 1.5rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 700;
+            color: #c9a961;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.75) !important;
+            margin-top: 0.5rem;
+        }
+
+        /* Section Styles */
+        section {
+            padding: 6rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        section:nth-child(even) {
+            background: var(--off-white);
+        }
+
+        .section-title {
+            font-size: 2.75rem;
+            margin-bottom: 3rem;
+            color: var(--navy);
+            text-align: center;
+            position: relative;
+            padding-bottom: 1rem;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: #c9a961;
+        }
+
+        /* About Section */
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 4rem;
+            align-items: start;
+        }
+
+        .profile-image {
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(10, 37, 64, 0.15);
+        }
+
+        .profile-placeholder {
+            width: 100%;
+            aspect-ratio: 3/4;
+            background: var(--gray-light);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .about-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--gray);
+        }
+
+        .about-text strong {
+            color: var(--navy);
+            font-weight: 600;
+        }
+
+        .languages {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--gray-light);
+        }
+
+        .languages strong {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--navy);
+        }
+
+        /* Services Section */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+            margin-top: 3rem;
+        }
+
+        .service-card {
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(10, 37, 64, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .service-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(10, 37, 64, 0.15);
+        }
+
+        .service-card h3 {
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+            color: var(--navy);
+        }
+
+        .service-card ul {
+            list-style: none;
+            color: var(--gray);
+        }
+
+        .service-card li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .service-card li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: #c9a961;
+            font-weight: bold;
+        }
+
+        /* Portfolio Section */
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .portfolio-item {
+            background: var(--white);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(10, 37, 64, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .portfolio-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(10, 37, 64, 0.15);
+        }
+
+        .portfolio-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .portfolio-placeholder {
+            width: 100%;
+            height: 250px;
+            background: var(--gray-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .portfolio-caption {
+            padding: 1.5rem;
+        }
+
+        .portfolio-caption h4 {
+            font-size: 1.1rem;
+            color: var(--navy);
+            margin-bottom: 0.5rem;
+        }
+
+        .portfolio-caption p {
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+
+        /* Media Section */
+        .media-logos {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4rem;
+            flex-wrap: wrap;
+            margin-top: 3rem;
+            padding: 2rem;
+        }
+
+        .media-logo {
+            height: 60px;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+            filter: grayscale(100%);
+        }
+
+        .media-logo:hover {
+            opacity: 1;
+            filter: grayscale(0%);
+        }
+
+        .media-placeholder {
+            width: 150px;
+            height: 60px;
+            background: var(--gray-light);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+
+        /* Contact Section */
+        .contact-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .contact-item {
+            padding: 2rem;
+            background: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(10, 37, 64, 0.08);
+        }
+
+        .contact-item strong {
+            display: block;
+            color: var(--navy);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .contact-item a {
+            color: var(--gray);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .contact-item a:hover {
+            color: var(--navy);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--navy);
+            color: var(--gray-light);
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            font-size: 0.9rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .about-content {
+                grid-template-columns: 1fr;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            section {
+                padding: 4rem 1.5rem;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Smooth Scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <a href="#" class="logo">GNOSIS ADVISORY</a>
+            <a href="#contact" class="contact-btn">Get in Touch</a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Strategic Advisory for<br>Growth and Investment</h1>
+            <p class="hero-subtitle">Data-driven insights for private equity and corporate clients</p>
+            
+            <div class="hero-stats">
+                <div class="stat">
+                    <span class="stat-number">66+</span>
+                    <span class="stat-label">Commercial due diligence transactions</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">120+</span>
+                    <span class="stat-label">Global projects delivered</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">2,000+</span>
+                    <span class="stat-label">Expert interviews conducted</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">Billions</span>
+                    <span class="stat-label">In aggregate deal value</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about">
+        <h2 class="section-title">About</h2>
+        <div class="about-content">
+            <div>
+                <!-- Replace this div with your professional headshot -->
+                <div class="profile-placeholder">Your professional headshot here</div>
+                <!-- Example: <img src="eduardo-headshot.jpg" alt="Eduardo Rios, PhD" class="profile-image"> -->
+            </div>
+            <div>
+                <div class="about-text">
+                    <p><strong>Gnosis Advisory</strong> is a boutique consulting firm founded by Eduardo Rios, PhD, in 2025. With over seven years of experience in CEO and board advisory across 120+ global projects, Eduardo has supported private equity clients with commercial due diligence across <strong>66+ transactions totalling several billions in deal value</strong> for firms including <strong>Advent International, Bain Capital, and Eurazeo</strong>.</p>
+                    
+                    <p style="margin-top: 1.5rem;">He has also worked with corporate clients on growth and expansion projects for companies including <strong>Google, LinkedIn, DHL, and Accenture</strong>.</p>
+                    
+                    <p style="margin-top: 1.5rem;">Gnosis provides strategic analysis using a range of methodologies, from modelling using <strong>SQL, R, and Python</strong> to qualitative research based on over 2,000 expert interviews, delivering data-driven insights across payments, fintech, retail, and industrial sectors.</p>
+                    
+                    <div class="languages">
+                        <strong>Languages:</strong>
+                        <span>Native fluency in English, French, Spanish, and Portuguese</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services">
+        <h2 class="section-title">Services</h2>
+        <div class="services-grid">
+            <div class="service-card">
+                <h3>Commercial Due Diligence</h3>
+                <ul>
+                    <li>Market sizing and growth forecasting</li>
+                    <li>Competitive landscape analysis</li>
+                    <li>Expert interviews with C-level executives</li>
+                    <li>Product-market fit assessment</li>
+                    <li>Revenue and margin validation</li>
+                </ul>
+            </div>
+            
+            <div class="service-card">
+                <h3>Growth Strategy</h3>
+                <ul>
+                    <li>Market entry and expansion planning</li>
+                    <li>Partnership ecosystem development</li>
+                    <li>Data-driven strategic roadmaps</li>
+                    <li>Organizational structure optimization</li>
+                    <li>Multi-workstream strategic planning</li>
+                </ul>
+            </div>
+            
+            <div class="service-card">
+                <h3>Thought Leadership</h3>
+                <ul>
+                    <li>Media commentary and analysis</li>
+                    <li>Expert insights on Venezuelan economics</li>
+                    <li>Political economy research</li>
+                    <li>Board-level presentations</li>
+                    <li>Strategic advisory services</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio/Deliverables Section -->
+    <section id="portfolio">
+        <h2 class="section-title">Select Deliverables</h2>
+        <div class="portfolio-grid">
+            <!-- Replace these placeholders with your actual deliverable images -->
+            <div class="portfolio-item">
+                <div class="portfolio-placeholder">Deliverable Image 1</div>
+                <div class="portfolio-caption">
+                    <h4>Market Share Analysis</h4>
+                    <p>Competitive intelligence for £2B logistics company</p>
+                </div>
+            </div>
+            
+            <div class="portfolio-item">
+                <div class="portfolio-placeholder">Deliverable Image 2</div>
+                <div class="portfolio-caption">
+                    <h4>Growth Forecasting Model</h4>
+                    <p>Market sizing tied to macroeconomic indicators</p>
+                </div>
+            </div>
+            
+            <div class="portfolio-item">
+                <div class="portfolio-placeholder">Deliverable Image 3</div>
+                <div class="portfolio-caption">
+                    <h4>Commercial Due Diligence</h4>
+                    <p>Strategic positioning analysis for PE acquisition</p>
+                </div>
+            </div>
+            
+            <!-- Add more portfolio items as needed -->
+        </div>
+    </section>
+
+    <!-- As Seen In Section -->
+    <section id="media">
+        <h2 class="section-title">As Featured In</h2>
+        <div class="media-logos">
+            <!-- Replace these placeholders with actual media logos -->
+            <div class="media-placeholder">France 24</div>
+            <div class="media-placeholder">RFI</div>
+            <div class="media-placeholder">Media 3</div>
+            <div class="media-placeholder">Media 4</div>
+            <!-- Example with real logo:
+            <a href="link-to-article" target="_blank">
+                <img src="france24-logo.png" alt="France 24" class="media-logo">
+            </a>
+            -->
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact">
+        <h2 class="section-title">Get in Touch</h2>
+        <div class="contact-content">
+            <p style="font-size: 1.1rem; color: var(--gray); margin-bottom: 2rem;">
+                Ready to discuss your strategic advisory needs? Let's connect.
+            </p>
+            
+            <div class="contact-info">
+                <div class="contact-item">
+                    <strong>Email</strong>
+                    <a href="mailto:eduardo@gnosisadvisory.co.uk">eduardo@gnosisadvisory.co.uk</a>
+                </div>
+                
+                <div class="contact-item">
+                    <strong>Phone</strong>
+                    <a href="tel:+447514777257">+44 7514 777 257</a>
+                </div>
+                
+                <div class="contact-item">
+                    <strong>LinkedIn</strong>
+                    <a href="https://linkedin.com/in/yourprofile" target="_blank">Connect on LinkedIn</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <p><strong>Gnosis Advisory Ltd</strong></p>
+            <p>Company No. 16737803 | Registered in England & Wales</p>
+            <p style="margin-top: 1rem;">Flat 11, 1 Offenham Road, London SW9 7BN</p>
+            <p style="margin-top: 2rem; opacity: 0.7;">© 2026 Gnosis Advisory. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
