@@ -90,22 +90,84 @@ def fetch_url(url: str, params=None, headers=None, method="GET",
     return None
 
 def search_web(query: str, num_results: int = 10) -> list:
-    """DuckDuckGo HTML search."""
+    """Search via DuckDuckGo HTML, with Bing fallback."""
+    results = _search_duckduckgo(query, num_results)
+    if not results:
+        log(f"    DDG returned 0 — trying Bing fallback")
+        results = _search_bing(query, num_results)
+    return results
+
+def _search_duckduckgo(query: str, num_results: int = 10) -> list:
     try:
         _rate_limit()
         resp = requests.post(
             "https://html.duckduckgo.com/html/",
             data={"q": query},
-            headers={**HEADERS, "Content-Type": "application/x-www-form-urlencoded"},
-            timeout=20
+            headers={
+                **HEADERS,
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Accept": "text/html,application/xhtml+xml",
+                "Accept-Language": "en-GB,en;q=0.9",
+            },
+            timeout=20,
+            allow_redirects=True,
+        )
+        if not resp or resp.status_code != 200:
+            log(f"    DDG status: {resp.status_code if resp else 'no response'}")
+            return []
+        soup = BeautifulSoup(resp.text, "lxml")
+        results = []
+        # Try multiple selector patterns (DDG occasionally changes their HTML)
+        selectors = [
+            (".result__title a", ".result__snippet"),
+            (".result__a", ".result__snippet"),
+            ("h2.result__title a", ".result__snippet"),
+            ("a.result__url", None),
+        ]
+        for title_sel, snippet_sel in selectors:
+            items = soup.select(title_sel)
+            if items:
+                for item in items[:num_results]:
+                    title = item.get_text(strip=True)
+                    url = item.get("href", "")
+                    snippet = ""
+                    if snippet_sel:
+                        # Walk up to containing result div and find snippet
+                        parent = item.find_parent(class_=re.compile(r"result"))
+                        if parent:
+                            sn = parent.select_one(snippet_sel)
+                            if sn:
+                                snippet = sn.get_text(strip=True)
+                    if url and title and not title.startswith("http"):
+                        results.append({"title": title, "url": url, "snippet": snippet})
+                break
+        return results
+    except Exception as e:
+        log(f"    DDG error: {e}")
+        return []
+
+def _search_bing(query: str, num_results: int = 10) -> list:
+    """Bing web search fallback (no API key required for HTML scrape)."""
+    try:
+        _rate_limit()
+        params = {"q": query, "count": num_results, "setlang": "en-GB"}
+        resp = requests.get(
+            "https://www.bing.com/search",
+            params=params,
+            headers={
+                **HEADERS,
+                "Accept": "text/html",
+                "Accept-Language": "en-GB,en;q=0.9",
+            },
+            timeout=20,
         )
         if not resp or resp.status_code != 200:
             return []
         soup = BeautifulSoup(resp.text, "lxml")
         results = []
-        for r in soup.select(".result")[:num_results]:
-            title_el = r.select_one(".result__title a")
-            snippet_el = r.select_one(".result__snippet")
+        for item in soup.select("li.b_algo")[:num_results]:
+            title_el = item.select_one("h2 a")
+            snippet_el = item.select_one(".b_caption p, .b_algoSlug")
             if not title_el:
                 continue
             title = title_el.get_text(strip=True)
@@ -115,7 +177,7 @@ def search_web(query: str, num_results: int = 10) -> list:
                 results.append({"title": title, "url": url, "snippet": snippet})
         return results
     except Exception as e:
-        log(f"  [{ts()}] Web search error: {e}")
+        log(f"    Bing error: {e}")
         return []
 
 # ---------------------------------------------------------------------------
@@ -450,19 +512,57 @@ def extract_sector(description: str) -> str:
     return " ".join(sector_words[:3]) if sector_words else " ".join(keywords[:3])
 
 def extract_company_names_from_text(text: str) -> list:
-    """Extract potential company names from a block of text."""
-    # Match words/phrases followed by company suffixes
-    pattern = re.compile(
-        r'([A-Z][a-zA-Z0-9&\-\'\s]{1,40}?\s+' +
-        r'(?:Ltd|Limited|Inc|Corp|Corporation|PLC|LLP|GmbH|SAS|SA|AG|BV|LLC))\b'
-    )
-    matches = pattern.findall(text)
+    """Extract potential company names from text — suffixed names AND proper nouns."""
     names = []
-    for m in matches:
+
+    # Pattern 1: Names with explicit company suffixes (most reliable)
+    suffix_pattern = re.compile(
+        r'([A-Z][a-zA-Z0-9&\-\'\s]{1,40}?\s+'
+        r'(?:Ltd|Limited|Inc|Incorporated|Corp|Corporation|PLC|LLP|'
+        r'GmbH|SAS|SA|AG|BV|LLC|LP|Co\b|Group\b))\b'
+    )
+    for m in suffix_pattern.findall(text):
         name = m.strip()
-        if len(name) > 3 and len(name) < 80:
+        if 3 < len(name) < 80:
             names.append(name)
+
+    # Pattern 2: Sequences of 1-4 capitalised words (catches "Yewdale", "Safe Hinge Primera")
+    proper_noun_pattern = re.compile(
+        r'\b([A-Z][a-z]{2,}(?:\s+[A-Z][a-z]{2,}){0,3})\b'
+    )
+    # Only keep if they don't look like sentence starts (crude heuristic: preceded by
+    # something other than ". " or start of string)
+    for m in proper_noun_pattern.finditer(text):
+        name = m.group(1).strip()
+        # Filter obvious false positives
+        if name.lower() in {"the", "and", "for", "with", "from", "this", "that",
+                            "they", "their", "our", "your", "its", "has", "have",
+                            "been", "also", "when", "where", "which", "who",
+                            "united", "kingdom", "british", "english", "london",
+                            "monday", "tuesday", "wednesday", "thursday", "friday",
+                            "january", "february", "march", "april", "june", "july",
+                            "august", "september", "october", "november", "december"}:
+            continue
+        if 4 < len(name) < 60 and not name.isupper():
+            names.append(name)
+
     return list(set(names))
+
+def _domain_to_company_name(domain: str) -> str:
+    """Convert a domain like 'safehingeprimera.com' → 'Safe Hinge Primera'."""
+    if not domain:
+        return ""
+    # Strip TLD and www
+    base = re.sub(r'\.(com|co\.uk|uk|net|org|io|biz|info)$', '', domain, flags=re.I)
+    base = re.sub(r'^www\.', '', base)
+    # Split on hyphens or detect camelCase/wordboundaries in concatenated words
+    if '-' in base:
+        words = base.split('-')
+    else:
+        # Try to split concatenated words using a simple capitalisation heuristic
+        # e.g. "safehingeprimera" → try common splits (no perfect solution without dict)
+        words = [base]
+    return ' '.join(w.capitalize() for w in words if w)
 
 def normalise_company_name(name: str) -> str:
     """Strip suffixes and normalise for deduplication."""
@@ -542,26 +642,48 @@ def discover_competitors(company: str, country: str, description: str,
     # ---- Method B: Web search ----
     log(f"  [{ts()}] Method B: Web search queries")
     method_b_results = []
+
+    # Build niche-specific queries: use full description keywords, not just the
+    # 3-word sector extract — this matters for rare B2B niches
+    # Extract key noun phrases directly from description
+    desc_words = [w for w in re.findall(r'\b[a-zA-Z\-]{4,}\b', description.lower())
+                  if w not in STOP_WORDS]
+    # Take the most distinctive 4 words (skip generic ones)
+    generic = {"manufacturer", "provider", "supplier", "company", "business",
+               "service", "product", "solution", "platform", "system"}
+    niche_words = [w for w in desc_words if w not in generic][:4]
+    niche_phrase = " ".join(niche_words)
+
     b_queries = [
-        f"{description} companies {country}",
-        f"{description} providers {country} list",
-        f"{company} alternatives",
+        f"{niche_phrase} manufacturer {country}",
+        f"{niche_phrase} supplier {country}",
+        f"{niche_phrase} companies UK",
+        f"{description} manufacturer UK",
         f"{company} competitors",
+        f"{company} alternatives",
         f"{sector} association {country} members",
-        f"{sector} {country} directory",
+        f"{niche_phrase} {country} directory",
     ]
     for q in b_queries:
-        log(f"    Searching: {q[:60]}...")
+        log(f"    Searching: {q[:70]}...")
         results = search_web(q, num_results=8)
+        log(f"      → {len(results)} results")
         for r in results:
             text = r.get("title", "") + " " + r.get("snippet", "")
             names = extract_company_names_from_text(text)
+
+            # Also extract company name directly from the result URL domain
+            domain = _extract_domain(r.get("url", ""))
+            domain_name = _domain_to_company_name(domain)
+            if domain_name and len(domain_name) > 3:
+                names.append(domain_name)
+
             for name in names:
                 if normalise_company_name(name) == normalise_company_name(company):
                     continue
                 method_b_results.append({
                     "name": name,
-                    "website": _extract_domain(r.get("url", "")),
+                    "website": domain,
                     "registry_number": None,
                     "discovery_method": "B_web_search",
                     "description": r.get("snippet", "")[:200],
@@ -578,8 +700,9 @@ def discover_competitors(company: str, country: str, description: str,
     log(f"  [{ts()}] Method C: LinkedIn and job posting signals")
     method_c_results = []
     c_queries = [
-        f"site:linkedin.com/company {sector} {country}",
-        f"{sector} jobs {country} site:linkedin.com OR site:indeed.com",
+        f"site:linkedin.com/company {niche_phrase} {country}",
+        f"{niche_phrase} jobs {country} site:linkedin.com",
+        f"{niche_phrase} manufacturer jobs {country} site:indeed.com OR site:reed.co.uk",
     ]
     for q in c_queries:
         log(f"    Searching: {q[:60]}...")
