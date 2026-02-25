@@ -171,7 +171,25 @@ def _search_bing(query: str, num_results: int = 10) -> list:
             if not title_el:
                 continue
             title = title_el.get_text(strip=True)
-            url = title_el.get("href", "")
+            # Bing h2 a href is a /ck/a? redirect — use cite for the real URL
+            cite_el = item.select_one("cite, .b_displayUrl, .b_attribution cite")
+            if cite_el:
+                cite_text = cite_el.get_text(strip=True)
+                # cite shows hostname or full URL, normalise to URL form
+                url = cite_text if "://" in cite_text else "https://" + cite_text
+            else:
+                # Fall back: try to decode the u= base64 param from the Bing redirect
+                href = title_el.get("href", "")
+                u_match = re.search(r'[?&]u=a1([A-Za-z0-9_\-]+)', href)
+                if u_match:
+                    try:
+                        import base64
+                        url = base64.urlsafe_b64decode(
+                            u_match.group(1) + "==").decode("utf-8", errors="ignore")
+                    except Exception:
+                        url = href
+                else:
+                    url = href
             snippet = snippet_el.get_text(strip=True) if snippet_el else ""
             if url and title:
                 results.append({"title": title, "url": url, "snippet": snippet})
