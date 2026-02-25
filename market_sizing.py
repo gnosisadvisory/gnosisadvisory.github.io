@@ -146,7 +146,7 @@ def _search_duckduckgo(query: str, num_results: int = 10) -> list:
         return []
 
 def _search_bing(query: str, num_results: int = 10) -> list:
-    """Bing web search fallback (no API key required for HTML scrape)."""
+    """Bing web search (HTML scrape, no API key required)."""
     try:
         _rate_limit()
         params = {"q": query, "count": num_results, "setlang": "en-GB"}
@@ -155,7 +155,7 @@ def _search_bing(query: str, num_results: int = 10) -> list:
             params=params,
             headers={
                 **HEADERS,
-                "Accept": "text/html",
+                "Accept": "text/html,application/xhtml+xml",
                 "Accept-Language": "en-GB,en;q=0.9",
             },
             timeout=20,
@@ -163,9 +163,18 @@ def _search_bing(query: str, num_results: int = 10) -> list:
         if not resp or resp.status_code != 200:
             return []
         soup = BeautifulSoup(resp.text, "lxml")
+        # Decompose ALL ad containers from the DOM before selecting results.
+        # Bing sometimes injects sponsored li.b_algo items inside #b_results
+        # without adding .b_ad, so :not(.b_ad) alone is insufficient.
+        for ad_el in soup.select(
+            "#b_tpad, .b_adTop, .b_adBottom, .b_ad, .b_adLastChild, "
+            "#b_ad, .b_adcenterb, .b_adcenter, [data-tag='RelatedSearchesBelow']"
+        ):
+            ad_el.decompose()
+        # Scope to #b_results to avoid any remaining stray elements
+        container = soup.select_one("#b_results") or soup
         results = []
-        # b_ad = sponsored/ad results — skip them entirely
-        for item in soup.select("li.b_algo:not(.b_ad)")[:num_results]:
+        for item in container.select("li.b_algo")[:num_results]:
             title_el = item.select_one("h2 a")
             snippet_el = item.select_one(".b_caption p, .b_algoSlug")
             if not title_el:
@@ -282,31 +291,95 @@ def _ch_auth():
         return (COMPANIES_HOUSE_API_KEY, "")
     return None
 
-def ch_search_by_sic(sic_code: str, max_results: int = 50) -> list:
+def ch_search_by_sic_public(sic_code: str, max_results: int = 100) -> list:
+    """
+    Scrape the public Companies House advanced-search website for a SIC code.
+    No API key required. Paginates until max_results reached or no more pages.
+    """
+    base_url = ("https://find-and-update.company-information.service.gov.uk"
+                "/advanced-search/results")
+    companies: list = []
+    start_index = 0
+    page_size = 20  # CH renders 20 results per page
+    while len(companies) < max_results:
+        params = {"sicCodes": sic_code, "status": "active",
+                  "startIndex": start_index}
+        resp = fetch_url(base_url, params=params, headers={
+            **HEADERS,
+            "Accept": "text/html,application/xhtml+xml",
+            "Accept-Language": "en-GB,en;q=0.9",
+        })
+        if not resp or resp.status_code != 200:
+            log(f"  [{ts()}] CH public search HTTP "
+                f"{resp.status_code if resp else 'error'}")
+            break
+        soup = BeautifulSoup(resp.text, "lxml")
+        # CH uses GOV.UK design — every company link looks like /company/XXXXXXXX
+        seen: set = set()
+        page_companies: list = []
+        for link in soup.select("a[href*='/company/']"):
+            href = link.get("href", "")
+            m = re.search(r'/company/([A-Z0-9]{6,8})(?:/|$)', href)
+            if not m:
+                continue
+            number = m.group(1)
+            if number in seen:
+                continue
+            seen.add(number)
+            name = link.get_text(strip=True)
+            if name:
+                page_companies.append({
+                    "name": name,
+                    "company_number": number,
+                    "sic_codes": [sic_code],
+                    "status": "active",
+                })
+        if not page_companies:
+            break
+        companies.extend(page_companies)
+        log(f"  [{ts()}] CH public: startIndex={start_index} "
+            f"→ {len(page_companies)} companies")
+        if len(page_companies) < page_size:
+            break  # last page
+        start_index += page_size
+    log(f"  [{ts()}] CH public scraper total: {len(companies)} companies")
+    return companies[:max_results]
+
+
+def ch_search_by_sic(sic_code: str, max_results: int = 100) -> list:
     log(f"  [{ts()}] Companies House: searching SIC {sic_code}")
-    resp = fetch_url(f"{CH_BASE}/advanced-search/companies",
-                     params={"sic_codes": sic_code, "company_status": "active",
-                             "size": max_results},
-                     auth=_ch_auth())
-    if not resp or resp.status_code != 200:
-        return []
-    try:
-        items = resp.json().get("items", [])
-        results = []
-        for item in items:
-            results.append({
-                "name": item.get("company_name", ""),
-                "company_number": item.get("company_number", ""),
-                "sic_codes": item.get("sic_codes", []),
-                "date_of_creation": item.get("date_of_creation", ""),
-                "address": item.get("registered_office_address", {}),
-                "status": item.get("company_status", ""),
-            })
-        log(f"  [{ts()}] Companies House SIC search returned {len(results)} companies")
-        return results
-    except Exception as e:
-        log(f"  [{ts()}] CH SIC parse error: {e}")
-        return []
+    # ── Primary: authenticated REST API (requires COMPANIES_HOUSE_API_KEY) ──
+    if COMPANIES_HOUSE_API_KEY:
+        resp = fetch_url(f"{CH_BASE}/advanced-search/companies",
+                         params={"sic_codes": sic_code,
+                                 "company_status": "active",
+                                 "size": min(max_results, 100)},
+                         auth=_ch_auth())
+        if resp and resp.status_code == 200:
+            try:
+                items = resp.json().get("items", [])
+                results = []
+                for item in items:
+                    results.append({
+                        "name": item.get("company_name", ""),
+                        "company_number": item.get("company_number", ""),
+                        "sic_codes": item.get("sic_codes", []),
+                        "date_of_creation": item.get("date_of_creation", ""),
+                        "address": item.get("registered_office_address", {}),
+                        "status": item.get("company_status", ""),
+                    })
+                log(f"  [{ts()}] CH API: {len(results)} companies for SIC {sic_code}")
+                return results
+            except Exception as e:
+                log(f"  [{ts()}] CH API parse error: {e}")
+        else:
+            log(f"  [{ts()}] CH API HTTP {resp.status_code if resp else 'error'}"
+                f" — falling back to public website scraper")
+    else:
+        log(f"  [{ts()}] No COMPANIES_HOUSE_API_KEY — using public website scraper"
+            f" (set env var for faster/fuller results)")
+    # ── Fallback: public website (no key needed) ──
+    return ch_search_by_sic_public(sic_code, max_results)
 
 def ch_get_company(company_number: str) -> dict:
     resp = fetch_url(f"{CH_BASE}/company/{company_number}", auth=_ch_auth())
