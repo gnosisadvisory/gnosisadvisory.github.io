@@ -90,11 +90,10 @@ def fetch_url(url: str, params=None, headers=None, method="GET",
     return None
 
 def search_web(query: str, num_results: int = 10) -> list:
-    """Search via DuckDuckGo HTML, with Bing fallback."""
-    results = _search_duckduckgo(query, num_results)
+    """Search via Bing (primary). DDG consistently returns HTTP 202 CAPTCHA block."""
+    results = _search_bing(query, num_results)
     if not results:
-        log(f"    DDG returned 0 — trying Bing fallback")
-        results = _search_bing(query, num_results)
+        results = _search_duckduckgo(query, num_results)
     return results
 
 def _search_duckduckgo(query: str, num_results: int = 10) -> list:
@@ -165,7 +164,8 @@ def _search_bing(query: str, num_results: int = 10) -> list:
             return []
         soup = BeautifulSoup(resp.text, "lxml")
         results = []
-        for item in soup.select("li.b_algo")[:num_results]:
+        # b_ad = sponsored/ad results — skip them entirely
+        for item in soup.select("li.b_algo:not(.b_ad)")[:num_results]:
             title_el = item.select_one("h2 a")
             snippet_el = item.select_one(".b_caption p, .b_algoSlug")
             if not title_el:
@@ -309,6 +309,48 @@ def ch_search_company_name(name: str) -> list:
         except Exception:
             pass
     return []
+
+def _scrape_company_number_from_website(website: str) -> str:
+    """
+    Scrape a company's website to find their Companies House registration number.
+    UK companies almost always include it in footer, About, or T&Cs:
+      "Company number: 01234567"  /  "Registered in England No. 01234567"
+    Returns the 8-digit (zero-padded) number string, or "" if not found.
+    """
+    pages_to_try = [
+        f"https://{website}",
+        f"https://{website}/about",
+        f"https://{website}/about-us",
+        f"https://{website}/contact",
+        f"https://{website}/terms",
+        f"https://{website}/terms-and-conditions",
+        f"https://{website}/legal",
+        f"https://{website}/privacy-policy",
+    ]
+    # Pattern for UK company numbers: exactly 8 digits, or 2 letters + 6 digits (e.g. SC123456)
+    ch_pattern = re.compile(
+        r'(?:company\s+(?:number|no\.?|registration\s+(?:number|no\.?))'
+        r'|registered\s+(?:number|no\.?|in\s+england[^0-9]{0,30}no\.?)'
+        r'|co\.?\s*(?:number|no\.?)'
+        r'|companies\s+house\s+(?:number|no\.?))'
+        r'\s*[:\-]?\s*([A-Z]{0,2}\d{6,8})',
+        re.IGNORECASE
+    )
+    for url in pages_to_try:
+        resp = fetch_url(url)
+        if not resp or resp.status_code != 200:
+            continue
+        try:
+            soup = BeautifulSoup(resp.text, "lxml")
+            text = soup.get_text(separator=" ", strip=True)
+            m = ch_pattern.search(text)
+            if m:
+                num = m.group(1).strip().zfill(8)
+                log(f"    Found company number {num} on {url}")
+                return num
+        except Exception:
+            continue
+    return ""
 
 def ch_get_financials(company_number: str) -> list:
     """Get financial data from Companies House filing history."""
@@ -548,6 +590,76 @@ def extract_company_names_from_text(text: str) -> list:
 
     return list(set(names))
 
+# Domains that can never produce real B2B competitors — skip entirely
+_NOISE_DOMAINS = {
+    "microsoft.com", "apple.com", "google.com", "bing.com", "yahoo.com",
+    "amazon.com", "amazon.co.uk", "ebay.com", "ebay.co.uk",
+    "bbc.co.uk", "bbc.com", "theguardian.com", "ft.com", "telegraph.co.uk",
+    "dailymail.co.uk", "independent.co.uk", "mirror.co.uk", "sky.com",
+    "wikipedia.org", "wikihow.com",
+    "linkedin.com", "indeed.com", "glassdoor.com", "reed.co.uk",
+    "totaljobs.com", "cv-library.co.uk", "monster.com",
+    "companies-house.gov.uk", "gov.uk", "hmrc.gov.uk", "nhs.uk",
+    "crunchbase.com", "bloomberg.com", "reuters.com",
+    "youtube.com", "twitter.com", "facebook.com", "instagram.com",
+    "reddit.com", "quora.com", "stackoverflow.com",
+}
+
+# Words that look like proper nouns but are not company names
+_NOT_COMPANY_NAMES = {
+    # Tech giants / software
+    "microsoft", "apple", "google", "bing", "amazon", "facebook", "twitter",
+    "youtube", "linkedin", "windows", "android", "iphone", "ipad",
+    # Generic web UI / navigation
+    "login", "sign", "register", "search", "menu", "home", "contact",
+    "about", "services", "products", "news", "blog", "careers", "jobs",
+    "privacy", "cookies", "terms", "sitemap", "help", "support",
+    # Common English words mistaken for names
+    "cheadle", "gatley", "cheshire", "stockport",  # Kingsway School location words
+    "curriculum", "exams", "calendar", "timetable", "pastoral", "ethos",
+    "values", "vision", "mission", "registered", "incorporated",
+    "foundation", "academy", "college", "school", "university",
+    "japanese", "french", "english", "spanish", "italian", "german",
+    "progression", "assessment", "achievement", "behaviour",
+    "sixth", "stage", "year", "form", "class",
+    # Generic adjectives / prepositions that appear in longer phrases
+    "easy", "anti", "cheat", "sign", "next", "free", "open", "fast",
+    "smart", "just", "best", "good", "true", "real", "pure", "core",
+    # Component/IT system strings from device info pages
+    "identification", "manufacturer", "system", "model", "version",
+    "serial", "number", "part", "code", "type", "product",
+}
+
+def _is_plausible_company_name(name: str) -> bool:
+    """Return True only if name looks like an actual company, not garbage."""
+    if not name or len(name) < 4:
+        return False
+    # Reject if it's entirely uppercase (acronym-only strings like "BSRIA")
+    # actually keep those — they're often legit trade bodies
+    words = name.lower().split()
+    # Reject single words that are in the noise list
+    for w in words:
+        if w in _NOT_COMPANY_NAMES:
+            return False
+    # Reject names that consist entirely of non-business words
+    business_word = re.search(
+        r'\b(ltd|limited|plc|llp|inc|group|systems|solutions|products|'
+        r'manufacturing|industries|services|technologies|supplies|'
+        r'hardware|furniture|doors|ironmongery|security|design|fire|'
+        r'health|care|safe|secure|ligature|anti)\b',
+        name.lower()
+    )
+    # Multi-word names with at least one capitalised word are usually fine
+    cap_words = [w for w in name.split() if w and w[0].isupper()]
+    if len(cap_words) >= 2:
+        return True
+    # Single capitalised word — only keep if it has a business suffix
+    if business_word:
+        return True
+    # Single word, no business suffix, not in noise list — borderline
+    # Keep only if it's 5+ chars (e.g. "Allgood", "Dorma", "Hafele")
+    return len(name.strip()) >= 5
+
 def _domain_to_company_name(domain: str) -> str:
     """Convert a domain like 'safehingeprimera.com' → 'Safe Hinge Primera'."""
     if not domain:
@@ -669,16 +781,22 @@ def discover_competitors(company: str, country: str, description: str,
         results = search_web(q, num_results=8)
         log(f"      → {len(results)} results")
         for r in results:
+            # Skip results from domains that can never be competitors
+            domain = _extract_domain(r.get("url", ""))
+            if any(nd in domain for nd in _NOISE_DOMAINS):
+                continue
+
             text = r.get("title", "") + " " + r.get("snippet", "")
             names = extract_company_names_from_text(text)
 
             # Also extract company name directly from the result URL domain
-            domain = _extract_domain(r.get("url", ""))
             domain_name = _domain_to_company_name(domain)
-            if domain_name and len(domain_name) > 3:
+            if domain_name and _is_plausible_company_name(domain_name):
                 names.append(domain_name)
 
             for name in names:
+                if not _is_plausible_company_name(name):
+                    continue
                 if normalise_company_name(name) == normalise_company_name(company):
                     continue
                 method_b_results.append({
@@ -739,36 +857,54 @@ def discover_competitors(company: str, country: str, description: str,
     # ---- Method D: Recursive discovery ----
     log(f"  [{ts()}] Method D: Recursive discovery from competitor websites")
     method_d_results = []
+    # Build a set of sector keywords to test page relevance
+    sector_keywords = set(niche_words) | set(re.findall(r'\b[a-z]{4,}\b', description.lower()))
+    sector_keywords -= STOP_WORDS
     for comp in all_companies[:10]:  # limit to top 10 for recursion
         website = comp.get("website")
         if not website:
             # Try to find website via search
             search_r = search_web(f"{comp['name']} official website", num_results=3)
             if search_r:
-                website = _extract_domain(search_r[0].get("url", ""))
-                comp["website"] = website
+                first_domain = _extract_domain(search_r[0].get("url", ""))
+                # Don't use result domains from noise list
+                if not any(nd in first_domain for nd in _NOISE_DOMAINS):
+                    website = first_domain
+                    comp["website"] = website
         if not website:
+            continue
+        # Skip noise domains
+        if any(nd in website for nd in _NOISE_DOMAINS):
             continue
         page = _fetch_page_text(f"https://{website}")
         if not page:
             page = _fetch_page_text(f"http://{website}")
-        if page:
-            names = extract_company_names_from_text(page[:3000])
-            for name in names:
-                norm = normalise_company_name(name)
-                if norm == normalise_company_name(company):
-                    continue
-                if any(normalise_company_name(c["name"]) == norm for c in all_companies):
-                    continue
-                method_d_results.append({
-                    "name": name,
-                    "website": None,
-                    "registry_number": None,
-                    "discovery_method": "D_recursive",
-                    "description": f"Discovered on {website}",
-                    "country": country,
-                    "raw_data": {"source_website": website},
-                })
+        if not page:
+            continue
+        # Relevance check: skip if the page doesn't mention ≥2 sector keywords
+        page_lower = page.lower()
+        kw_hits = sum(1 for kw in sector_keywords if kw in page_lower)
+        if kw_hits < 2:
+            log(f"    Skipping {website} — only {kw_hits} sector keyword hits (not relevant)")
+            continue
+        names = extract_company_names_from_text(page[:3000])
+        for name in names:
+            if not _is_plausible_company_name(name):
+                continue
+            norm = normalise_company_name(name)
+            if norm == normalise_company_name(company):
+                continue
+            if any(normalise_company_name(c["name"]) == norm for c in all_companies):
+                continue
+            method_d_results.append({
+                "name": name,
+                "website": None,
+                "registry_number": None,
+                "discovery_method": "D_recursive",
+                "description": f"Discovered on {website}",
+                "country": country,
+                "raw_data": {"source_website": website},
+            })
 
     all_companies.extend(method_d_results)
     discovery_meta["methods_run"].append("D_recursive")
@@ -993,7 +1129,14 @@ def collect_financials(competitors: list, registry_mode: dict) -> list:
 
         # Mode A — Companies House
         if registry_mode["mode"] == "A":
-            # Use registry_number if known, else search by name
+            # Step 1: try to scrape the company's own website for their reg number
+            # (most reliable — avoids name-search ambiguity)
+            if not reg_num and comp.get("website"):
+                scraped = _scrape_company_number_from_website(comp["website"])
+                if scraped:
+                    reg_num = scraped
+                    comp["registry_number"] = reg_num
+            # Step 2: fall back to Companies House name search
             if not reg_num:
                 matches = ch_search_company_name(name)
                 if matches:
