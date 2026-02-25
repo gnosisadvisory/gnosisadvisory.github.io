@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+*.pyo
+market_data_*.json
+market_sizing_*.html
