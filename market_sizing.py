@@ -29,12 +29,27 @@ except ImportError:
 # ---------------------------------------------------------------------------
 # Global configuration
 # ---------------------------------------------------------------------------
-REQUEST_DELAY = 2.0
+REQUEST_DELAY = 2.5
 _last_request_time: float = 0.0
 
+# Rotate through realistic browser user-agents to reduce block rate.
+# A new agent is picked randomly for each search session.
+import random as _random
+_USER_AGENTS = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Safari/605.1.15",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+]
+
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (compatible; MarketSizingBot/1.0; +https://gnosisadvisory.com)"
+    "User-Agent": _random.choice(_USER_AGENTS)
 }
+
+def _fresh_headers() -> dict:
+    """Return headers with a freshly picked user-agent."""
+    return {**HEADERS, "User-Agent": _random.choice(_USER_AGENTS)}
 
 COMPANIES_HOUSE_API_KEY = os.environ.get("COMPANIES_HOUSE_API_KEY", "")
 PAPPERS_API_KEY = os.environ.get("PAPPERS_API_KEY", "")
@@ -103,7 +118,7 @@ def _search_duckduckgo(query: str, num_results: int = 10) -> list:
             "https://html.duckduckgo.com/html/",
             data={"q": query},
             headers={
-                **HEADERS,
+                **_fresh_headers(),
                 "Content-Type": "application/x-www-form-urlencoded",
                 "Accept": "text/html,application/xhtml+xml",
                 "Accept-Language": "en-GB,en;q=0.9",
@@ -154,7 +169,7 @@ def _search_bing(query: str, num_results: int = 10) -> list:
             "https://www.bing.com/search",
             params=params,
             headers={
-                **HEADERS,
+                **_fresh_headers(),
                 "Accept": "text/html,application/xhtml+xml",
                 "Accept-Language": "en-GB,en;q=0.9",
             },
@@ -163,18 +178,29 @@ def _search_bing(query: str, num_results: int = 10) -> list:
         if not resp or resp.status_code != 200:
             return []
         soup = BeautifulSoup(resp.text, "lxml")
-        # Decompose ALL ad containers from the DOM before selecting results.
-        # Bing sometimes injects sponsored li.b_algo items inside #b_results
-        # without adding .b_ad, so :not(.b_ad) alone is insufficient.
+        # Decompose ALL known ad containers from the DOM before selecting results.
+        # Bing changes ad class names periodically; we cast a wide net.
         for ad_el in soup.select(
             "#b_tpad, .b_adTop, .b_adBottom, .b_ad, .b_adLastChild, "
-            "#b_ad, .b_adcenterb, .b_adcenter, [data-tag='RelatedSearchesBelow']"
+            "#b_ad, .b_adcenterb, .b_adcenter, .b_adSlug, "
+            "[data-tag='RelatedSearchesBelow'], [data-bm='ads'], "
+            "[aria-label='Ads'], [aria-label='Advertisement']"
         ):
             ad_el.decompose()
         # Scope to #b_results to avoid any remaining stray elements
         container = soup.select_one("#b_results") or soup
         results = []
         for item in container.select("li.b_algo")[:num_results]:
+            # Secondary ad check: some sponsored results survive container removal.
+            # Reject items that have an explicit "Ad" or "Sponsored" label.
+            item_text = item.get_text(" ", strip=True)
+            if re.search(r'\bSponsored\b|\bAdvertisement\b', item_text):
+                continue
+            # Also reject if the visible label element contains just "Ad"
+            ad_label = item.select_one(".b_adSlug, .b_tpcn, [data-bm]")
+            if ad_label and re.fullmatch(r'Ad', ad_label.get_text(strip=True)):
+                continue
+
             title_el = item.select_one("h2 a")
             snippet_el = item.select_one(".b_caption p, .b_algoSlug")
             if not title_el:
@@ -184,11 +210,12 @@ def _search_bing(query: str, num_results: int = 10) -> list:
             cite_el = item.select_one("cite, .b_displayUrl, .b_attribution cite")
             if cite_el:
                 cite_text = cite_el.get_text(strip=True)
-                # cite shows hostname or full URL, normalise to URL form
                 url = cite_text if "://" in cite_text else "https://" + cite_text
             else:
-                # Fall back: try to decode the u= base64 param from the Bing redirect
                 href = title_el.get("href", "")
+                # Reject Bing ad-click URLs (aclick, adclick, etc.)
+                if re.search(r'bing\.com/a(?:d)?click', href, re.I):
+                    continue
                 u_match = re.search(r'[?&]u=a1([A-Za-z0-9_\-]+)', href)
                 if u_match:
                     try:
@@ -199,6 +226,9 @@ def _search_bing(query: str, num_results: int = 10) -> list:
                         url = href
                 else:
                     url = href
+            # Final URL-level ad guard: skip tracking/ad-network domains
+            if re.search(r'doubleclick\.net|googleadservices|bing\.com/aclick', url, re.I):
+                continue
             snippet = snippet_el.get_text(strip=True) if snippet_el else ""
             if url and title:
                 results.append({"title": title, "url": url, "snippet": snippet})
@@ -698,15 +728,20 @@ _NOISE_DOMAINS = {
 
 # Words that look like proper nouns but are not company names
 _NOT_COMPANY_NAMES = {
-    # Tech giants / software
+    # Tech giants / Big Tech — single-word forms that contaminate snippets
     "microsoft", "apple", "google", "bing", "amazon", "facebook", "twitter",
     "youtube", "linkedin", "windows", "android", "iphone", "ipad",
+    "alibaba", "tencent", "samsung", "huawei", "xiaomi", "baidu",
+    "netflix", "spotify", "adobe", "oracle", "salesforce", "sap",
+    "paypal", "stripe", "shopify", "ebay", "etsy",
+    "uber", "airbnb", "booking", "tripadvisor",
+    "volkswagen", "toyota", "tesla", "bmw", "mercedes", "honda", "ford",
     # Generic web UI / navigation
     "login", "sign", "register", "search", "menu", "home", "contact",
     "about", "services", "products", "news", "blog", "careers", "jobs",
     "privacy", "cookies", "terms", "sitemap", "help", "support",
     # Common English words mistaken for names
-    "cheadle", "gatley", "cheshire", "stockport",  # Kingsway School location words
+    "cheadle", "gatley", "cheshire", "stockport",
     "curriculum", "exams", "calendar", "timetable", "pastoral", "ethos",
     "values", "vision", "mission", "registered", "incorporated",
     "foundation", "academy", "college", "school", "university",
@@ -725,10 +760,9 @@ def _is_plausible_company_name(name: str) -> bool:
     """Return True only if name looks like an actual company, not garbage."""
     if not name or len(name) < 4:
         return False
-    # Reject if it's entirely uppercase (acronym-only strings like "BSRIA")
-    # actually keep those — they're often legit trade bodies
     words = name.lower().split()
-    # Reject single words that are in the noise list
+    # ALWAYS check noise list first — catches "Apple Pay", "Alibaba Group" etc.
+    # This must run before the cap_words short-circuit.
     for w in words:
         if w in _NOT_COMPANY_NAMES:
             return False
@@ -857,13 +891,12 @@ def discover_competitors(company: str, country: str, description: str,
     niche_words = [w for w in desc_words if w not in generic][:4]
     niche_phrase = " ".join(niche_words)
 
+    # Keep to 5 focused queries — more than this triggers rate-limiting on
+    # Bing/DDG before the session completes.  Prioritise the most specific ones.
     b_queries = [
-        f"{niche_phrase} manufacturer {country}",
+        f"{niche_phrase} companies {country}",
+        f"{company} competitors {country}",
         f"{niche_phrase} supplier {country}",
-        f"{niche_phrase} companies UK",
-        f"{description} manufacturer UK",
-        f"{company} competitors",
-        f"{company} alternatives",
         f"{sector} association {country} members",
         f"{niche_phrase} {country} directory",
     ]
@@ -911,7 +944,6 @@ def discover_competitors(company: str, country: str, description: str,
     c_queries = [
         f"site:linkedin.com/company {niche_phrase} {country}",
         f"{niche_phrase} jobs {country} site:linkedin.com",
-        f"{niche_phrase} manufacturer jobs {country} site:indeed.com OR site:reed.co.uk",
     ]
     for q in c_queries:
         log(f"    Searching: {q[:60]}...")
