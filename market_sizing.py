@@ -676,6 +676,13 @@ def extract_sector(description: str) -> str:
 
 def extract_company_names_from_text(text: str) -> list:
     """Extract potential company names from text — suffixed names AND proper nouns."""
+    # --- Pre-clean ---
+    # Remove breadcrumb separators (Bing/DDG cite format: "Site.com › Page › Sub")
+    text = re.sub(r'[›»]\s*\S+', ' ', text)
+    # Remove raw URLs and domain-like tokens to stop "baidu.com" → "Baidu"
+    text = re.sub(r'https?://\S+', ' ', text)
+    text = re.sub(r'\b\S+\.(com|co\.uk|org|net|io|biz|info)\b', ' ', text, flags=re.I)
+
     names = []
 
     # Pattern 1: Names with explicit company suffixes (most reliable)
@@ -689,22 +696,50 @@ def extract_company_names_from_text(text: str) -> list:
         if 3 < len(name) < 80:
             names.append(name)
 
-    # Pattern 2: Sequences of 1-4 capitalised words (catches "Yewdale", "Safe Hinge Primera")
+    # Words that commonly start sentences or appear capitalised for grammar reasons,
+    # NOT because they are company names.  Checked per-word (not full-name) so that
+    # "United Kingdom" is rejected because "United" appears here.
+    _SENTENCE_STARTERS = {
+        "the", "this", "these", "that", "there", "they", "their", "them",
+        "our", "your", "its", "and", "but", "for", "with", "from", "into",
+        "since", "among", "small", "large", "many", "most", "some", "each",
+        "both", "other", "another", "such", "more", "also", "when", "where",
+        "which", "what", "how", "why", "who", "whom", "whose",
+        "united", "british", "english", "scottish", "welsh", "irish",
+        "international", "national", "global", "local", "regional",
+        "new", "old", "top", "key", "main", "major", "leading", "based",
+        "market", "sector", "industry", "business", "company", "companies",
+        "product", "service", "customer", "consumer", "employee", "staff",
+        "brand", "store", "online", "digital", "financial", "retail",
+        "monday", "tuesday", "wednesday", "thursday", "friday",
+        "saturday", "sunday",
+        "january", "february", "march", "april", "june", "july",
+        "august", "september", "october", "november", "december",
+        "london", "manchester", "birmingham", "edinburgh", "glasgow",
+        "kingdom", "england", "scotland", "wales", "ireland",
+    }
+
+    # If a name contains ANY of these words it is a descriptor, not a company
+    _NOISE_WORDS_IN_NAME = {
+        "competitors", "competitor", "alternatives", "alternative",
+        "directory", "guide", "list", "review", "ranking", "comparison",
+        "analysis", "report", "overview", "landscape", "market",
+        "franchise", "since", "among", "investopedia", "wikipedia",
+        "crunchbase", "statista", "similar", "versus",
+    }
+
+    # Pattern 2: Sequences of 1-4 capitalised words
     proper_noun_pattern = re.compile(
         r'\b([A-Z][a-z]{2,}(?:\s+[A-Z][a-z]{2,}){0,3})\b'
     )
-    # Only keep if they don't look like sentence starts (crude heuristic: preceded by
-    # something other than ". " or start of string)
     for m in proper_noun_pattern.finditer(text):
         name = m.group(1).strip()
-        # Filter obvious false positives
-        if name.lower() in {"the", "and", "for", "with", "from", "this", "that",
-                            "they", "their", "our", "your", "its", "has", "have",
-                            "been", "also", "when", "where", "which", "who",
-                            "united", "kingdom", "british", "english", "london",
-                            "monday", "tuesday", "wednesday", "thursday", "friday",
-                            "january", "february", "march", "april", "june", "july",
-                            "august", "september", "october", "november", "december"}:
+        name_words = name.lower().split()
+        # Reject if the first word is a common sentence starter / non-name word
+        if name_words[0] in _SENTENCE_STARTERS:
+            continue
+        # Reject if ANY word in the name is a noise descriptor
+        if any(w in _NOISE_WORDS_IN_NAME for w in name_words):
             continue
         if 4 < len(name) < 60 and not name.isupper():
             names.append(name)
@@ -724,6 +759,13 @@ _NOISE_DOMAINS = {
     "crunchbase.com", "bloomberg.com", "reuters.com",
     "youtube.com", "twitter.com", "facebook.com", "instagram.com",
     "reddit.com", "quora.com", "stackoverflow.com",
+    "investopedia.com", "statista.com", "ibisworld.com", "mordorintelligence.com",
+    "businesswire.com", "prnewswire.com", "techcrunch.com", "forbes.com",
+    "wsj.com", "nytimes.com", "theverge.com", "wired.com",
+    "hinative.com", "zhidao.baidu.com", "baidu.com", "weibo.com",
+    "similarweb.com", "semrush.com", "owler.com", "dnb.com",
+    "comparably.com", "g2.com", "trustpilot.com", "capterra.com",
+    "latterly.org", "comparably.com",
 }
 
 # Words that look like proper nouns but are not company names
@@ -910,8 +952,11 @@ def discover_competitors(company: str, country: str, description: str,
             if any(nd in domain for nd in _NOISE_DOMAINS):
                 continue
 
-            text = r.get("title", "") + " " + r.get("snippet", "")
-            names = extract_company_names_from_text(text)
+            # Use only the snippet for proper-noun extraction.
+            # Page titles like "Top 10 Tesco Competitors 2024 | Latterly.org"
+            # produce garbage names ("Tesco Competitors") when included.
+            snippet_text = r.get("snippet", "")
+            names = extract_company_names_from_text(snippet_text)
 
             # Also extract company name directly from the result URL domain
             domain_name = _domain_to_company_name(domain)
@@ -949,8 +994,7 @@ def discover_competitors(company: str, country: str, description: str,
         log(f"    Searching: {q[:60]}...")
         results = search_web(q, num_results=6)
         for r in results:
-            text = r.get("title", "") + " " + r.get("snippet", "")
-            names = extract_company_names_from_text(text)
+            names = extract_company_names_from_text(r.get("snippet", ""))
             # Also try to extract company name from LinkedIn URL
             li_name = _extract_linkedin_company(r.get("url", ""))
             if li_name:
@@ -1067,8 +1111,7 @@ def discover_competitors(company: str, country: str, description: str,
         for q in e_queries[:3]:
             results = search_web(q, num_results=6)
             for r in results:
-                text = r.get("title", "") + " " + r.get("snippet", "")
-                names = extract_company_names_from_text(text)
+                names = extract_company_names_from_text(r.get("snippet", ""))
                 for name in names:
                     if normalise_company_name(name) == normalise_company_name(company):
                         continue
