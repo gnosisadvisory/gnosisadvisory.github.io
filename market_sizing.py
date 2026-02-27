@@ -32,6 +32,11 @@ except ImportError:
 REQUEST_DELAY = 2.5
 _last_request_time: float = 0.0
 
+# Bing block-avoidance: pause for ~15 s (with jitter) after every N searches.
+_BING_SEARCH_COUNT = 0
+_BING_PAUSE_EVERY = 5       # searches between long pauses
+_BING_PAUSE_BASE = 15.0     # seconds (jitter ±3 s added below)
+
 # Rotate through realistic browser user-agents to reduce block rate.
 # A new agent is picked randomly for each search session.
 import random as _random
@@ -73,8 +78,9 @@ def ts() -> str:
 def _rate_limit():
     global _last_request_time
     elapsed = time.time() - _last_request_time
-    if elapsed < REQUEST_DELAY:
-        time.sleep(REQUEST_DELAY - elapsed)
+    delay = REQUEST_DELAY + _random.uniform(-0.5, 1.0)  # jitter ±~0.75 s
+    if elapsed < delay:
+        time.sleep(delay - elapsed)
     _last_request_time = time.time()
 
 def fetch_url(url: str, params=None, headers=None, method="GET",
@@ -162,6 +168,13 @@ def _search_duckduckgo(query: str, num_results: int = 10) -> list:
 
 def _search_bing(query: str, num_results: int = 10) -> list:
     """Bing web search (HTML scrape, no API key required)."""
+    global _BING_SEARCH_COUNT
+    # Pause every N searches to avoid Bing rate-limiting / CAPTCHA blocks.
+    _BING_SEARCH_COUNT += 1
+    if _BING_SEARCH_COUNT % _BING_PAUSE_EVERY == 0:
+        pause = _BING_PAUSE_BASE + _random.uniform(-3.0, 3.0)
+        log(f"  [{ts()}] Bing cooldown after {_BING_SEARCH_COUNT} searches — sleeping {pause:.1f}s")
+        time.sleep(pause)
     try:
         _rate_limit()
         params = {"q": query, "count": num_results, "setlang": "en-GB"}
@@ -176,6 +189,12 @@ def _search_bing(query: str, num_results: int = 10) -> list:
             timeout=20,
         )
         if not resp or resp.status_code != 200:
+            return []
+        # Detect Bing CAPTCHA / block page (returns 200 but no real results).
+        if re.search(r'id=["\']captcha|recaptcha|g-recaptcha|challenge|'
+                     r'automated.{0,30}request|unusual.{0,30}traffic',
+                     resp.text[:4000], re.I):
+            log(f"  [{ts()}] Bing CAPTCHA detected — falling back to DDG")
             return []
         soup = BeautifulSoup(resp.text, "lxml")
         # Decompose ALL known ad containers from the DOM before selecting results.
