@@ -762,7 +762,7 @@ _NOISE_DOMAINS = {
     "investopedia.com", "statista.com", "ibisworld.com", "mordorintelligence.com",
     "businesswire.com", "prnewswire.com", "techcrunch.com", "forbes.com",
     "wsj.com", "nytimes.com", "theverge.com", "wired.com",
-    "hinative.com", "zhidao.baidu.com", "baidu.com", "weibo.com",
+    "hinative.com", "zhihu.com", "zhidao.baidu.com", "baidu.com", "weibo.com",
     "similarweb.com", "semrush.com", "owler.com", "dnb.com",
     "comparably.com", "g2.com", "trustpilot.com", "capterra.com",
     "latterly.org", "comparably.com",
@@ -1138,7 +1138,8 @@ def discover_competitors(company: str, country: str, description: str,
     # Filter out obviously irrelevant results (job boards, news sites, etc.)
     noise_domains = {"indeed.com", "glassdoor.com", "linkedin.com", "reed.co.uk",
                      "totaljobs.com", "guardian.com", "bbc.co.uk", "ft.com",
-                     "crunchbase.com", "wikipedia.org", "companies-house.gov.uk"}
+                     "crunchbase.com", "wikipedia.org", "companies-house.gov.uk",
+                     "zhihu.com"}
     filtered = []
     for c in all_companies:
         site = c.get("website", "") or ""
