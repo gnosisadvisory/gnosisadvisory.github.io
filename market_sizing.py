@@ -967,6 +967,78 @@ def deduplicate_companies(companies: list) -> list:
                 seen[key] = {**existing, **{k: v for k, v in c.items() if v}}
     return list(seen.values())
 
+
+def _ch_prescreen_sic_results(raw: list, max_fetches: int = 100) -> list:
+    """
+    Fetch the CH company profile for each SIC search result and sort/filter by:
+      - company_status != "dormant"
+      - accounts.last_accounts.type not in ["micro-entity", "micro"]
+      - accounts.last_accounts.made_up_to within the last 2 years
+
+    Returns three tiers in order:
+      QUALITY  — active, non-micro, recently filed (these are the ones worth processing)
+      BORDER   — active but stale accounts, or profile fetch failed
+      DROPPED  — dormant or micro-entity (appended last so they don't waste
+                 financial-collection budget but are still present for completeness)
+
+    Limits API calls to `max_fetches` to keep the pre-screen under ~4 minutes.
+    Companies without a registry_number are placed in BORDER automatically.
+    """
+    from datetime import timedelta
+    cutoff = datetime.now() - timedelta(days=730)   # 2-year window
+    micro_types = {"micro-entity", "micro", "micro entity"}
+    dormant_statuses = {"dormant", "converted-closed", "dissolved"}
+
+    quality, border, dropped = [], [], []
+    fetches = 0
+
+    for comp in raw:
+        reg_num = comp.get("company_number", "") or comp.get("registry_number", "")
+        if not reg_num or fetches >= max_fetches:
+            border.append(comp)
+            continue
+
+        profile = ch_get_company(reg_num)
+        fetches += 1
+
+        if not profile:
+            border.append(comp)
+            continue
+
+        status = profile.get("company_status", "active").lower()
+        if any(s in status for s in dormant_statuses):
+            dropped.append(comp)
+            continue
+
+        accts = profile.get("accounts", {})
+        last = accts.get("last_accounts", {})
+        acct_type = last.get("type", "").lower().replace("-", " ")
+        made_up_to = last.get("made_up_to", "")
+
+        is_micro = any(mt in acct_type for mt in micro_types)
+
+        is_recent = True   # assume OK if no date present (new company)
+        if made_up_to:
+            try:
+                is_recent = datetime.strptime(made_up_to[:10], "%Y-%m-%d") >= cutoff
+            except ValueError:
+                pass
+
+        if is_micro:
+            dropped.append(comp)
+        elif not is_recent:
+            border.append(comp)
+        else:
+            quality.append(comp)
+
+    log(f"  [{ts()}] CH pre-screen ({fetches} profiles fetched): "
+        f"{len(quality)} quality (non-micro, active, recent), "
+        f"{len(border)} borderline, "
+        f"{len(dropped)} micro/dormant (de-prioritised)")
+
+    return quality + border + dropped
+
+
 # ---------------------------------------------------------------------------
 # MODULE 5 — Competitor Discovery
 # ---------------------------------------------------------------------------
@@ -989,6 +1061,12 @@ def discover_competitors(company: str, country: str, description: str,
     method_a_results = []
     if registry_mode["mode"] == "A" and sic_code:
         raw = ch_search_by_sic(sic_code)
+        # Pre-screen: sort raw results so quality companies (active, non-micro,
+        # accounts filed within 2 years) are processed first. Micro-entity and
+        # dormant companies are moved to the end so they don't consume financial-
+        # collection budget before the interesting players are processed.
+        log(f"  [{ts()}] Pre-screening {len(raw)} SIC results for quality...")
+        raw = _ch_prescreen_sic_results(raw)
         for r in raw:
             method_a_results.append({
                 "name": r["name"],
@@ -1499,7 +1577,23 @@ def collect_financials(competitors: list, registry_mode: dict) -> list:
         # Also fires for INFERRED companies: abbreviated/micro-entity accounts
         # contain balance-sheet data but no P&L turnover.  For well-known
         # companies the web search can supply the missing revenue figure.
-        if not financials or data_quality in ("UNKNOWN", "INFERRED"):
+        #
+        # Skip web search for companies discovered via the SIC registry that
+        # only have micro-entity / abbreviated accounts AND no balance-sheet
+        # data worth inferring from — these are typically tiny corner shops
+        # with no web presence, so web searches would just waste rate-limit
+        # budget without finding anything useful.
+        is_registry_micro = (
+            comp.get("discovery_method") == "A_companies_house"
+            and data_quality == "INFERRED"
+            and financials
+            and not any(
+                financials[-1].get(k)
+                for k in ["trade_debtors", "trade_creditors", "staff_costs",
+                          "deferred_income", "director_emoluments"]
+            )
+        )
+        if not financials or (data_quality in ("UNKNOWN", "INFERRED") and not is_registry_micro):
             web_financials = _search_web_financials(name, current_year)
             if web_financials:
                 if data_quality == "INFERRED" and financials:
