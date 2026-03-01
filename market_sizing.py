@@ -804,6 +804,72 @@ _NOISE_DOMAINS = {
 _NOISE_DOMAIN_PREFIXES = ("forums.", "forum.", "community.", "discuss.", "answers.",
                           "support.", "help.", "wiki.", "docs.", "dev.")
 
+# ---------------------------------------------------------------------------
+# Sector seed lists — known major players guaranteed in every analysis.
+# Keyed by (country_lower, sic_3digit_prefix).  Company numbers are left None
+# so the existing CH name-search in collect_financials resolves them at run
+# time (avoids hardcoding numbers that can go stale if a company restructures).
+# ---------------------------------------------------------------------------
+SECTOR_SEEDS: dict = {
+    # UK grocery / food retail  (SIC 471xx)
+    ("uk", "471"): [
+        "J SAINSBURY PLC",
+        "ASDA STORES LIMITED",
+        "WM MORRISON SUPERMARKETS PLC",
+        "LIDL GREAT BRITAIN LIMITED",
+        "ALDI STORES LIMITED",
+        "MARKS AND SPENCER PLC",
+        "WAITROSE LIMITED",
+        "ICELAND FOODS LIMITED",
+        "OCADO GROUP PLC",
+        "CO-OPERATIVE GROUP LIMITED",
+        "BOOKER LIMITED",
+    ],
+    # UK food & drink manufacturing (SIC 107xx / 108xx / 110xx)
+    ("uk", "107"): [
+        "ASSOCIATED BRITISH FOODS PLC",
+        "PREMIER FOODS PLC",
+        "GREENCORE GROUP PLC",
+        "BAKKAVOR GROUP PLC",
+        "CRANSWICK PLC",
+    ],
+    # UK pubs / bars / restaurants (SIC 561xx)
+    ("uk", "561"): [
+        "MITCHELLS & BUTLERS PLC",
+        "WETHERSPOON (J D) PLC",
+        "WHITBREAD PLC",
+        "RESTAURANT GROUP PLC",
+        "WAGAMAMA LIMITED",
+    ],
+    # UK software / SaaS (SIC 620xx)
+    ("uk", "620"): [
+        "SAGE GROUP PLC",
+        "MICRO FOCUS INTERNATIONAL PLC",
+        "AVEVA GROUP PLC",
+        "KAINOS GROUP PLC",
+    ],
+    # UK financial services / fintech (SIC 641xx / 649xx)
+    ("uk", "641"): [
+        "LLOYDS BANKING GROUP PLC",
+        "NATWEST GROUP PLC",
+        "BARCLAYS PLC",
+        "HSBC UK BANK PLC",
+        "MONZO BANK LIMITED",
+        "REVOLUT LIMITED",
+        "STARLING BANK LIMITED",
+        "TRANSFERWISE LIMITED",
+    ],
+    # France grocery (NAF 4711)
+    ("france", "471"): [
+        "CARREFOUR SA",
+        "AUCHAN RETAIL FRANCE SAS",
+        "LECLERC",
+        "INTERMARCHE",
+        "LIDL SAS",
+        "ALDI MARCHE SAS",
+    ],
+}
+
 # Words that look like proper nouns but are not company names
 _NOT_COMPANY_NAMES = {
     # Tech giants / Big Tech — single-word forms that contaminate snippets
@@ -953,6 +1019,36 @@ def discover_competitors(company: str, country: str, description: str,
     discovery_meta["methods_run"].append("A_registry")
     discovery_meta["counts_by_method"]["A_registry"] = len(method_a_results)
     log(f"  [{ts()}] Method A found {len(method_a_results)} companies")
+
+    # ---- Seed: inject known major players for this sector (priority) ----
+    # The SIC search returns an arbitrary 100 companies and often misses major
+    # players entirely.  We prepend a curated list so they are always present
+    # and are processed first (financial collection works top-to-bottom).
+    if sic_code and registry_mode["mode"] in ("A", "C"):
+        sic_prefix = str(sic_code)[:3]
+        seed_names = SECTOR_SEEDS.get((country.lower(), sic_prefix), [])
+        seed_results = []
+        for seed_name in seed_names:
+            if normalise_company_name(seed_name) == normalise_company_name(company):
+                continue
+            if any(normalise_company_name(c["name"]) == normalise_company_name(seed_name)
+                   for c in all_companies):
+                continue  # already present from registry search
+            seed_results.append({
+                "name": seed_name,
+                "website": None,
+                "registry_number": None,  # resolved during financial collection
+                "discovery_method": "A_seed",
+                "description": "Known major sector player (seeded)",
+                "country": country,
+                "raw_data": {},
+            })
+        # Prepend seeds so they are always included and processed first
+        all_companies = seed_results + all_companies
+        if seed_results:
+            log(f"  [{ts()}] Seeded {len(seed_results)} known major players "
+                f"(SIC prefix {sic_prefix})")
+        discovery_meta["counts_by_method"]["A_seed"] = len(seed_results)
 
     # ---- Method B: Web search ----
     log(f"  [{ts()}] Method B: Web search queries")
@@ -1399,14 +1495,31 @@ def collect_financials(competitors: list, registry_mode: dict) -> list:
                         data_quality = "VERIFIED"
                         data_source = "OpenCorporates"
 
-        # Web-based financial discovery (all modes as fallback)
-        if not financials or data_quality == "UNKNOWN":
+        # Web-based financial discovery (all modes as fallback).
+        # Also fires for INFERRED companies: abbreviated/micro-entity accounts
+        # contain balance-sheet data but no P&L turnover.  For well-known
+        # companies the web search can supply the missing revenue figure.
+        if not financials or data_quality in ("UNKNOWN", "INFERRED"):
             web_financials = _search_web_financials(name, current_year)
             if web_financials:
-                financials = web_financials
-                data_quality = "ESTIMATED"
-                data_source = "Web sources (annual reports / news)"
-                data_source_url = web_financials[0].get("source_url") if web_financials else None
+                if data_quality == "INFERRED" and financials:
+                    # Merge: keep the richer balance-sheet snapshot from CH,
+                    # inject the web-sourced turnover into it.
+                    web_turnover = web_financials[0].get("turnover")
+                    if web_turnover:
+                        for fin in financials:
+                            if fin.get("turnover") is None:
+                                fin["turnover"] = web_turnover
+                        has_pl = any(f.get("turnover") is not None for f in financials)
+                        if has_pl:
+                            data_quality = "VERIFIED"
+                            data_source = "Companies House (balance sheet) + Web (turnover)"
+                            data_source_url = web_financials[0].get("source_url")
+                else:
+                    financials = web_financials
+                    data_quality = "ESTIMATED"
+                    data_source = "Web sources (annual reports / news)"
+                    data_source_url = web_financials[0].get("source_url") if web_financials else None
 
         comp["financials"] = financials
         comp["data_quality"] = data_quality
@@ -1416,8 +1529,10 @@ def collect_financials(competitors: list, registry_mode: dict) -> list:
 
     verified = sum(1 for c in competitors if c.get("data_quality") == "VERIFIED")
     estimated = sum(1 for c in competitors if c.get("data_quality") == "ESTIMATED")
+    inferred = sum(1 for c in competitors if c.get("data_quality") == "INFERRED")
     unknown = sum(1 for c in competitors if c.get("data_quality") == "UNKNOWN")
-    log(f"  [{ts()}] Financials: {verified} verified, {estimated} estimated, {unknown} unknown")
+    log(f"  [{ts()}] Financials: {verified} verified, {estimated} estimated, "
+        f"{inferred} inferred (balance-sheet only), {unknown} unknown")
     return competitors
 
 def _parse_pappers_financials(data: dict) -> list:
