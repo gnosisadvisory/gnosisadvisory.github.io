@@ -229,6 +229,9 @@ def _search_bing(query: str, num_results: int = 10) -> list:
             cite_el = item.select_one("cite, .b_displayUrl, .b_attribution cite")
             if cite_el:
                 cite_text = cite_el.get_text(strip=True)
+                # Bing shows breadcrumbs like "domain › path › sub" — keep only domain
+                if '›' in cite_text:
+                    cite_text = cite_text.split('›')[0].strip()
                 url = cite_text if "://" in cite_text else "https://" + cite_text
             else:
                 href = title_el.get("href", "")
@@ -457,6 +460,10 @@ def _scrape_company_number_from_website(website: str) -> str:
       "Company number: 01234567"  /  "Registered in England No. 01234567"
     Returns the 8-digit (zero-padded) number string, or "" if not found.
     """
+    # Bail out immediately on non-parseable "URLs" (e.g. Bing breadcrumbs with ›)
+    if not website or '›' in website or ' ' in website.split('/')[0]:
+        return ""
+
     pages_to_try = [
         f"https://{website}",
         f"https://{website}/about",
@@ -785,7 +792,17 @@ _NOISE_DOMAINS = {
     "similarweb.com", "semrush.com", "owler.com", "dnb.com",
     "comparably.com", "g2.com", "trustpilot.com", "capterra.com",
     "latterly.org", "comparably.com",
+    # Gaming / entertainment platforms that pollute competitor searches
+    "elderscrollsonline.com", "steampowered.com", "store.steampowered.com",
+    "ign.com", "gamespot.com", "pcgamer.com", "eurogamer.net", "rockpapershotgun.com",
+    "nexusmods.com", "curseforge.com", "modrinth.com",
+    "twitch.tv", "discord.com", "discordapp.com",
+    "bandits-clan.ru",
 }
+
+# Domain prefixes that are never legitimate competitors (checked via startswith)
+_NOISE_DOMAIN_PREFIXES = ("forums.", "forum.", "community.", "discuss.", "answers.",
+                          "support.", "help.", "wiki.", "docs.", "dev.")
 
 # Words that look like proper nouns but are not company names
 _NOT_COMPANY_NAMES = {
@@ -969,6 +986,8 @@ def discover_competitors(company: str, country: str, description: str,
             # Skip results from domains that can never be competitors
             domain = _extract_domain(r.get("url", ""))
             if any(nd in domain for nd in _NOISE_DOMAINS):
+                continue
+            if domain.startswith(_NOISE_DOMAIN_PREFIXES):
                 continue
 
             # Use only the snippet for proper-noun extraction.
@@ -1439,54 +1458,104 @@ def _parse_oc_financials(data: dict) -> list:
             results.append(snap)
     return results
 
+def _extract_revenue_value(text: str) -> float | None:
+    """
+    Return the first plausible annual revenue/turnover figure found in text.
+    Handles patterns like: £68.2bn, £28,000m, £1.2 billion, $4.5 million, 68,215 million
+    """
+    patterns = [
+        # £/$/€ followed by number + optional unit
+        re.compile(
+            r'(?:turnover|revenue|sales)[^£$€\d]{0,40}[\$£€]\s*([\d,]+(?:\.\d+)?)\s*'
+            r'(billion|bn|million|m\b)',
+            re.IGNORECASE),
+        re.compile(
+            r'[\$£€]\s*([\d,]+(?:\.\d+)?)\s*(billion|bn|million|m\b)',
+            re.IGNORECASE),
+        # bare number + billion/million (e.g. "turnover of 28,000 million")
+        re.compile(
+            r'(?:turnover|revenue|sales)[^0-9]{0,30}([\d,]+(?:\.\d+)?)\s*(billion|bn|million|m\b)',
+            re.IGNORECASE),
+    ]
+    for pat in patterns:
+        for m in pat.finditer(text):
+            groups = m.groups()
+            val_str = groups[-2]
+            unit = (groups[-1] or "").lower()
+            try:
+                val = float(val_str.replace(",", ""))
+                if "billion" in unit or unit == "bn":
+                    val *= 1_000_000_000
+                elif "million" in unit or unit == "m":
+                    val *= 1_000_000
+                if val > 1_000_000:  # At least £1m — filters out years/page numbers
+                    return val
+            except Exception:
+                continue
+    return None
+
+
 def _search_web_financials(company_name: str, current_year: int) -> list:
-    """Search for revenue figures in web sources."""
+    """Search for revenue figures, reading both snippets and actual pages."""
     queries = [
-        f'"{company_name}" revenue {current_year - 1}',
-        f'"{company_name}" turnover {current_year - 1}',
-        f'"{company_name}" annual report {current_year - 1} filetype:pdf',
+        f'"{company_name}" revenue OR turnover {current_year - 1}',
+        f'"{company_name}" annual results {current_year - 1}',
         f'"{company_name}" annual report {current_year - 2}',
     ]
-    results = []
-    revenue_pattern = re.compile(
-        r'[\$£€]\s*([\d,]+(?:\.\d+)?)\s*(million|billion|bn|m\b|k\b)?',
-        re.IGNORECASE
-    )
-    for q in queries[:2]:  # Limit to 2 web queries per company for speed
+
+    def _make_snap(val: float, url: str) -> dict:
+        return {
+            "year": current_year - 1,
+            "turnover": val,
+            "operating_profit": None, "net_profit": None,
+            "total_assets": None, "net_assets": None,
+            "employees": None, "trade_debtors": None,
+            "trade_creditors": None, "staff_costs": None,
+            "deferred_income": None, "fixed_assets": None,
+            "director_emoluments": None, "abbreviated": False,
+            "filing_date": str(current_year - 1),
+            "source_url": url,
+        }
+
+    for q in queries[:2]:  # 2 queries per company max
         web_results = search_web(q, num_results=5)
         for r in web_results:
+            url = r.get("url", "")
+            if '›' in url or not url:
+                continue
+
+            # --- Pass 1: snippet (fast, no extra request) ---
             text = r.get("snippet", "") + " " + r.get("title", "")
-            matches = revenue_pattern.findall(text)
-            for val_str, unit in matches:
-                try:
-                    val = float(val_str.replace(",", ""))
-                    unit = unit.lower() if unit else ""
-                    if "billion" in unit or "bn" in unit:
-                        val *= 1_000_000_000
-                    elif "million" in unit or unit == "m":
-                        val *= 1_000_000
-                    elif unit == "k":
-                        val *= 1_000
-                    if val > 100_000:  # Filter out small/noise numbers
-                        snap = {
-                            "year": current_year - 1,
-                            "turnover": val,
-                            "operating_profit": None, "net_profit": None,
-                            "total_assets": None, "net_assets": None,
-                            "employees": None, "trade_debtors": None,
-                            "trade_creditors": None, "staff_costs": None,
-                            "deferred_income": None, "fixed_assets": None,
-                            "director_emoluments": None, "abbreviated": False,
-                            "filing_date": str(current_year - 1),
-                            "source_url": r.get("url", ""),
-                        }
-                        results.append(snap)
-                        break  # One figure per search result
-                except Exception:
-                    pass
-        if results:
-            break
-    return results[:1]  # Return at most one web snapshot
+            val = _extract_revenue_value(text)
+            if val:
+                return [_make_snap(val, url)]
+
+            # --- Pass 2: fetch the actual page for richer text ---
+            # Only fetch HTML pages that look like investor/results pages
+            is_report_page = any(kw in url.lower() for kw in
+                                 ("annual", "result", "investor", "finance",
+                                  "report", "turnover", "revenue", "accounts"))
+            is_pdf = url.lower().endswith(".pdf")
+            if not is_report_page and not is_pdf:
+                continue
+
+            page_resp = fetch_url(url)
+            if not page_resp or page_resp.status_code != 200:
+                continue
+
+            if is_pdf:
+                # PDFs: scan raw bytes for embedded text strings
+                raw = page_resp.content[:150_000].decode("latin-1", errors="ignore")
+                val = _extract_revenue_value(raw)
+            else:
+                soup = BeautifulSoup(page_resp.text, "lxml")
+                page_text = soup.get_text(" ", strip=True)
+                val = _extract_revenue_value(page_text[:60_000])
+
+            if val:
+                return [_make_snap(val, url)]
+
+    return []
 
 
 # ---------------------------------------------------------------------------
