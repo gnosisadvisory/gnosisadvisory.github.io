@@ -969,7 +969,7 @@ def deduplicate_companies(companies: list) -> list:
 
 
 def _ch_prescreen_sic_results(raw: list, max_fetches: int = 100,
-                               quality_cap: int = 20) -> list:
+                               quality_cap: int = 4) -> list:
     """
     Fetch the CH company profile for each SIC search result and HARD-FILTER to:
       - company_status == "active" (not dormant / dissolved)
@@ -1047,9 +1047,10 @@ def _ch_prescreen_sic_results(raw: list, max_fetches: int = 100,
             tier2.append(comp)   # small / total-exemption etc.
 
     # Build result: large-company full filers first, then small filers as padding
+    # if we found fewer than 2 tier1. Keep total ≤ quality_cap.
     result = tier1
-    if len(result) < 5:
-        needed = min(10 - len(result), len(tier2))
+    if len(result) < 2:
+        needed = min(quality_cap - len(result), len(tier2))
         result = tier1 + tier2[:needed]
 
     log(f"  [{ts()}] CH pre-screen ({fetches} profiles fetched): "
@@ -1058,14 +1059,6 @@ def _ch_prescreen_sic_results(raw: list, max_fetches: int = 100,
         f"{n_micro} micro-entity dropped, "
         f"{n_dormant} dormant dropped — "
         f"returning {len(result)} companies")
-
-    return result
-
-    log(f"  [{ts()}] CH pre-screen ({fetches} profiles fetched): "
-        f"{len(quality)} quality kept, "
-        f"{n_micro} micro-entity dropped, "
-        f"{n_dormant} dormant dropped, "
-        f"{len(border)} borderline (used only if quality < 5)")
 
     return result
 
@@ -1226,101 +1219,6 @@ def discover_competitors(company: str, country: str, description: str,
     discovery_meta["counts_by_method"]["B_web_search"] = len(method_b_results)
     log(f"  [{ts()}] Method B found {len(method_b_results)} raw entries")
 
-    # ---- Method C: LinkedIn/job signals ----
-    log(f"  [{ts()}] Method C: LinkedIn and job posting signals")
-    method_c_results = []
-    c_queries = [
-        f"site:linkedin.com/company {niche_phrase} {country}",
-        f"{niche_phrase} jobs {country} site:linkedin.com",
-    ]
-    for q in c_queries:
-        log(f"    Searching: {q[:60]}...")
-        results = search_web(q, num_results=6)
-        for r in results:
-            names = extract_company_names_from_text(r.get("snippet", ""))
-            # Also try to extract company name from LinkedIn URL
-            li_name = _extract_linkedin_company(r.get("url", ""))
-            if li_name:
-                names.append(li_name)
-            for name in names:
-                if normalise_company_name(name) == normalise_company_name(company):
-                    continue
-                method_c_results.append({
-                    "name": name,
-                    "website": None,
-                    "registry_number": None,
-                    "discovery_method": "C_linkedin",
-                    "description": r.get("snippet", "")[:200],
-                    "country": country,
-                    "raw_data": r,
-                })
-
-    all_companies.extend(method_c_results)
-    discovery_meta["methods_run"].append("C_linkedin")
-    discovery_meta["counts_by_method"]["C_linkedin"] = len(method_c_results)
-    log(f"  [{ts()}] Method C found {len(method_c_results)} raw entries")
-
-    # ---- Deduplicate before Method D ----
-    all_companies = deduplicate_companies(all_companies)
-    log(f"  [{ts()}] After dedup (pre-recursive): {len(all_companies)} unique companies")
-
-    # ---- Method D: Recursive discovery ----
-    log(f"  [{ts()}] Method D: Recursive discovery from competitor websites")
-    method_d_results = []
-    # Build a set of sector keywords to test page relevance
-    sector_keywords = set(niche_words) | set(re.findall(r'\b[a-z]{4,}\b', description.lower()))
-    sector_keywords -= STOP_WORDS
-    for comp in all_companies[:10]:  # limit to top 10 for recursion
-        website = comp.get("website")
-        if not website:
-            # Try to find website via search
-            search_r = search_web(f"{comp['name']} official website", num_results=3)
-            if search_r:
-                first_domain = _extract_domain(search_r[0].get("url", ""))
-                # Don't use result domains from noise list
-                if not any(nd in first_domain for nd in _NOISE_DOMAINS):
-                    website = first_domain
-                    comp["website"] = website
-        if not website:
-            continue
-        # Skip noise domains
-        if any(nd in website for nd in _NOISE_DOMAINS):
-            continue
-        page = _fetch_page_text(f"https://{website}")
-        if not page:
-            page = _fetch_page_text(f"http://{website}")
-        if not page:
-            continue
-        # Relevance check: skip if the page doesn't mention ≥2 sector keywords
-        page_lower = page.lower()
-        kw_hits = sum(1 for kw in sector_keywords if kw in page_lower)
-        if kw_hits < 2:
-            log(f"    Skipping {website} — only {kw_hits} sector keyword hits (not relevant)")
-            continue
-        names = extract_company_names_from_text(page[:3000])
-        for name in names:
-            if not _is_plausible_company_name(name):
-                continue
-            norm = normalise_company_name(name)
-            if norm == normalise_company_name(company):
-                continue
-            if any(normalise_company_name(c["name"]) == norm for c in all_companies):
-                continue
-            method_d_results.append({
-                "name": name,
-                "website": None,
-                "registry_number": None,
-                "discovery_method": "D_recursive",
-                "description": f"Discovered on {website}",
-                "country": country,
-                "raw_data": {"source_website": website},
-            })
-
-    all_companies.extend(method_d_results)
-    discovery_meta["methods_run"].append("D_recursive")
-    discovery_meta["counts_by_method"]["D_recursive"] = len(method_d_results)
-    log(f"  [{ts()}] Method D found {len(method_d_results)} additional companies")
-
     # ---- Method E: International registries ----
     if registry_mode["mode"] in ("D", "E"):
         log(f"  [{ts()}] Method E: International registry / web-only mode")
@@ -1390,10 +1288,9 @@ def discover_competitors(company: str, country: str, description: str,
             filtered.append(c)
     all_companies = filtered
 
-    # Hard cap: seeds and quality companies already dominate the front of the
-    # list.  Anything beyond 40 is noise from web search that adds no value to
-    # the market sizing model and only slows the run down.
-    MAX_COMPANIES = 40
+    # Hard cap: seeds + up to 4 quality CH companies.  Anything beyond 15 is
+    # noise that slows the run down without improving the market sizing model.
+    MAX_COMPANIES = 15
     if len(all_companies) > MAX_COMPANIES:
         log(f"  [{ts()}] Capping list at {MAX_COMPANIES} companies "
             f"(was {len(all_companies)} — trailing entries are lower-quality web signals)")
@@ -2554,9 +2451,6 @@ def generate_dashboard(data: dict) -> str:
 
     # Compute summary stats
     total = len(competitors)
-    n_direct = sum(1 for c in competitors if c.get("tier") == "DIRECT")
-    n_second = sum(1 for c in competitors if c.get("tier") == "SECOND_TIER")
-    n_unknown_tier = sum(1 for c in competitors if c.get("tier") == "UNKNOWN")
     n_verified = sum(1 for c in competitors if c.get("data_quality") == "VERIFIED")
     n_inferred = sum(1 for c in competitors if c.get("data_quality") == "INFERRED")
     n_estimated = sum(1 for c in competitors if c.get("data_quality") == "ESTIMATED")
@@ -2671,14 +2565,12 @@ def generate_dashboard(data: dict) -> str:
             "name": name_cell,
             "raw_name": name,
             "tier": tier,
-            "tier_badge": _tier_badge(tier),
             "rev_display": rev_display,
             "rev_val": rev or 0,
             "emp": f"{emp:,}" if emp else "—",
             "source": c.get("data_source", "—"),
             "quality": _quality_badge(dq),
             "reg_link": reg_link,
-            "rationale": rationale,
             "inference_html": inference_html,
             "dq": dq,
         })
@@ -2686,13 +2578,11 @@ def generate_dashboard(data: dict) -> str:
     comp_rows_html = ""
     for r in comp_rows:
         comp_rows_html += f"""
-        <tr data-tier="{r['tier']}" class="comp-row">
+        <tr class="comp-row">
           <td style="padding:8px 10px">
             {r['name']}
-            <div style="font-size:11px;color:#888;margin-top:2px">{r['rationale'][:100]}...</div>
             {r['inference_html']}
           </td>
-          <td style="padding:8px 10px;text-align:center">{r['tier_badge']}</td>
           <td style="padding:8px 10px">{r['rev_display']}</td>
           <td style="padding:8px 10px;text-align:center">{r['emp']}</td>
           <td style="padding:8px 10px;font-size:12px">{r['source']}</td>
@@ -2703,11 +2593,7 @@ def generate_dashboard(data: dict) -> str:
     # ---- Chart data ----
     chart_labels = json.dumps([r["raw_name"][:25] for r in comp_rows if r["rev_val"] > 0])
     chart_values = json.dumps([r["rev_val"] / 1_000_000 for r in comp_rows if r["rev_val"] > 0])
-    chart_colours = json.dumps([
-        "#1B2B4A" if r["tier"] == "DIRECT" else
-        "#C9A961" if r["tier"] == "SECOND_TIER" else "#bdc3c7"
-        for r in comp_rows if r["rev_val"] > 0
-    ])
+    chart_colours = json.dumps(["#1B2B4A"] * len([r for r in comp_rows if r["rev_val"] > 0]))
 
     # Discovery donut data
     method_counts = discovery_meta.get("counts_by_method", {})
@@ -2728,9 +2614,9 @@ def generate_dashboard(data: dict) -> str:
             trend_all_years.update(f["year"] for f in fins)
     trend_years = sorted(trend_all_years)
 
-    line_colours_solid = ["#1B2B4A", "#2c4a7c", "#1a5276", "#0e6655", "#145a32"]
-    line_colours_dash = ["#C9A961", "#d4ac0d", "#e67e22", "#784212", "#935116"]
-    si = di = 0
+    line_colours = ["#1B2B4A", "#2c4a7c", "#1a5276", "#0e6655", "#145a32",
+                    "#C9A961", "#d4ac0d", "#e67e22", "#784212", "#935116"]
+    ci = 0
     for c in competitors:
         fins = sorted(
             [f for f in c.get("financials", []) if f.get("year") and f.get("turnover")],
@@ -2742,20 +2628,15 @@ def generate_dashboard(data: dict) -> str:
         values = [fin_by_year.get(y) for y in trend_years]
         if not any(v for v in values):
             continue
-        is_direct = c.get("tier") == "DIRECT"
-        colour = (line_colours_solid[si % len(line_colours_solid)] if is_direct
-                  else line_colours_dash[di % len(line_colours_dash)])
-        if is_direct:
-            si += 1
-        else:
-            di += 1
+        colour = line_colours[ci % len(line_colours)]
+        ci += 1
 
         js_values = [v / 1_000_000 if v else "null" for v in values]
         trend_datasets.append({
             "label": c["name"][:20],
             "data": js_values,
             "borderColor": colour,
-            "borderDash": [] if is_direct else [5, 5],
+            "borderDash": [],
             "fill": False,
             "tension": 0.1,
             "pointStyle": "circle",
@@ -2771,7 +2652,6 @@ def generate_dashboard(data: dict) -> str:
         if not trends or not trends.get("yoy_changes"):
             continue
         row_cells = f"<td style='padding:6px 10px'>{c['name'][:25]}</td>"
-        row_cells += f"<td style='text-align:center'>{_tier_badge(c.get('tier','UNKNOWN'))}</td>"
         for yc in trends["yoy_changes"]:
             pct = yc.get("revenue_change_pct")
             if pct is None:
@@ -2800,7 +2680,6 @@ def generate_dashboard(data: dict) -> str:
             fastest_label = " ⭐" if is_fastest else ""
             cagr_rows_html += f"""<tr style="{row_style}">
               <td style="padding:6px 10px">{c['name'][:25]}{fastest_label}</td>
-              <td style="text-align:center">{_tier_badge(c.get('tier','UNKNOWN'))}</td>
               <td style="text-align:center;font-size:11px">{t.get('revenue_cagr_period','')}</td>
               <td style="text-align:center;font-weight:600">{_fmt_pct(t.get('revenue_cagr'))}</td>
               <td style="text-align:center">{_fmt_pct(t.get('profit_cagr'))}</td>
@@ -2906,11 +2785,6 @@ def generate_dashboard(data: dict) -> str:
                    text-align: center; flex: 1; }}
   .summary-card .num {{ font-size: 28px; font-weight: 700; color: #1B2B4A; }}
   .summary-card .lbl {{ font-size: 11px; color: #888; margin-top: 2px; }}
-  .tier-filter {{ display: flex; gap: 8px; margin-bottom: 16px; }}
-  .tier-btn {{ padding: 6px 16px; border-radius: 20px; border: 2px solid #1B2B4A;
-               background: white; cursor: pointer; font-size: 12px;
-               font-weight: 600; color: #1B2B4A; transition: all 0.2s; }}
-  .tier-btn.active {{ background: #1B2B4A; color: white; }}
   table {{ width: 100%; border-collapse: collapse; }}
   th {{ background: #f8f9fa; padding: 10px; text-align: left;
         font-size: 12px; color: #555; border-bottom: 2px solid #e0e0e0; }}
@@ -2965,19 +2839,9 @@ def generate_dashboard(data: dict) -> str:
 
   <div class="summary-cards">
     <div class="summary-card"><div class="num">{total}</div><div class="lbl">Total companies found</div></div>
-    <div class="summary-card"><div class="num" style="color:#1B2B4A">{n_direct}</div><div class="lbl">Direct competitors</div></div>
-    <div class="summary-card"><div class="num" style="color:#C9A961">{n_second}</div><div class="lbl">Second-tier</div></div>
     <div class="summary-card"><div class="num" style="color:#27ae60">{n_verified}</div><div class="lbl">Verified financials</div></div>
     <div class="summary-card"><div class="num" style="color:#e67e22">{n_inferred}</div><div class="lbl">Inferred financials</div></div>
     <div class="summary-card"><div class="num" style="color:#95a5a6">{n_no_data}</div><div class="lbl">No financial data</div></div>
-    <div class="summary-card"><div class="num">{len(discovery_meta.get('methods_run',[]))}</div><div class="lbl">Discovery methods used</div></div>
-  </div>
-
-  <div class="tier-filter">
-    <span style="font-size:12px;font-weight:600;color:#555;line-height:32px">Filter by tier:</span>
-    <button class="tier-btn active" onclick="filterTier('ALL',this)">All ({total})</button>
-    <button class="tier-btn" onclick="filterTier('DIRECT',this)">Direct only ({n_direct})</button>
-    <button class="tier-btn" onclick="filterTier('SECOND_TIER',this)">Second-tier only ({n_second})</button>
   </div>
 
   <div class="card">
@@ -2986,7 +2850,6 @@ def generate_dashboard(data: dict) -> str:
       <thead>
         <tr>
           <th>Company</th>
-          <th style="text-align:center">Tier</th>
           <th>Revenue</th>
           <th style="text-align:center">Employees</th>
           <th>Data Source</th>
@@ -3043,14 +2906,14 @@ def generate_dashboard(data: dict) -> str:
     <h3>CAGR Summary</h3>
     <table>
       <thead><tr>
-        <th>Company</th><th style="text-align:center">Tier</th>
+        <th>Company</th>
         <th style="text-align:center">Data Period</th>
         <th style="text-align:center">Revenue CAGR</th>
         <th style="text-align:center">Profit CAGR</th>
         <th style="text-align:center">Headcount CAGR</th>
       </tr></thead>
       <tbody>
-        {cagr_rows_html if cagr_rows_html else '<tr><td colspan="6" style="color:#aaa;padding:12px">Insufficient multi-year data for CAGR calculation.</td></tr>'}
+        {cagr_rows_html if cagr_rows_html else '<tr><td colspan="5" style="color:#aaa;padding:12px">Insufficient multi-year data for CAGR calculation.</td></tr>'}
       </tbody>
     </table>
     {'<p style="font-size:12px;color:#888;margin-top:8px">⭐ Fastest revenue grower highlighted</p>' if cagr_rows_html else ''}
@@ -3087,30 +2950,22 @@ def generate_dashboard(data: dict) -> str:
       <thead>
         <tr style="background:#1B2B4A;color:white">
           <th style="padding:12px;min-width:140px">Coverage scenario</th>
-          <th>Direct competitors only<br><small style="font-weight:normal;opacity:0.8">({n_direct} companies)</small></th>
-          <th>Direct + Second-tier<br><small style="font-weight:normal;opacity:0.8">({n_direct+n_second} companies)</small></th>
           <th>All identified players<br><small style="font-weight:normal;opacity:0.8">({total} companies)</small></th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td class="row-header">Conservative<br><small style="font-weight:400">Identified = 80% of market</small></td>
-          <td>{matrix_cell('direct_only','conservative')}</td>
-          <td>{matrix_cell('direct_and_second_tier','conservative')}</td>
           <td>{matrix_cell('all','conservative')}</td>
         </tr>
         <tr style="background:#f8f9fa">
           <td class="row-header" style="background:#EBF0F7;color:#1B2B4A">
             <strong>Base case</strong><br><small style="font-weight:400">Identified = 60% of market</small>
           </td>
-          <td style="background:#EBF0F7"><strong>{matrix_cell('direct_only','base')}</strong></td>
-          <td style="background:#EBF0F7"><strong>{matrix_cell('direct_and_second_tier','base')}</strong></td>
           <td style="background:#EBF0F7"><strong>{matrix_cell('all','base')}</strong></td>
         </tr>
         <tr>
           <td class="row-header">Aggressive<br><small style="font-weight:400">Identified = 40% of market</small></td>
-          <td>{matrix_cell('direct_only','aggressive')}</td>
-          <td>{matrix_cell('direct_and_second_tier','aggressive')}</td>
           <td>{matrix_cell('all','aggressive')}</td>
         </tr>
       </tbody>
@@ -3193,19 +3048,6 @@ function showTab(id, btn) {{
   document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
   document.getElementById('tab-' + id).classList.add('active');
   btn.classList.add('active');
-}}
-
-// Tier filter
-function filterTier(tier, btn) {{
-  document.querySelectorAll('.tier-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll('.comp-row').forEach(row => {{
-    if (tier === 'ALL' || row.dataset.tier === tier) {{
-      row.style.display = '';
-    }} else {{
-      row.style.display = 'none';
-    }}
-  }});
 }}
 
 // Revenue bar chart
@@ -3319,9 +3161,6 @@ def print_terminal_summary(data: dict):
 
     n_total = len(competitors)
     counts = discovery_meta.get("counts_by_method", {})
-    n_direct = sum(1 for c in competitors if c.get("tier") == "DIRECT")
-    n_second = sum(1 for c in competitors if c.get("tier") == "SECOND_TIER")
-    n_unknown_tier = n_total - n_direct - n_second
     n_verified = sum(1 for c in competitors if c.get("data_quality") == "VERIFIED")
     n_inferred = sum(1 for c in competitors if c.get("data_quality") == "INFERRED")
     n_no_data = n_total - n_verified - n_inferred
@@ -3332,11 +3171,8 @@ def print_terminal_summary(data: dict):
     td_conf = td.get("confidence", "—")
     td_display = f"£{td_est/1e6:.1f}m" if td_est else "Not found"
 
-    direct_base = bu.get("matrix", {}).get("direct_only", {}).get("base", {})
     all_base = bu.get("matrix", {}).get("all", {}).get("base", {})
-    direct_est = direct_base.get("market_estimate")
     all_est = all_base.get("market_estimate")
-    direct_display = f"£{direct_est/1e6:.1f}m" if direct_est else "Insufficient data"
     all_display = f"£{all_est/1e6:.1f}m" if all_est else "Insufficient data"
 
     ku = known_unknowns
@@ -3362,11 +3198,6 @@ def print_terminal_summary(data: dict):
     if discovery_meta.get("warning"):
         print(f"    ⚠  {discovery_meta['warning'][:60]}...")
     print()
-    print("  CLASSIFICATION")
-    print(f"    Direct competitors:                {n_direct}")
-    print(f"    Second-tier competitors:           {n_second}")
-    print(f"    Unknown/unclassified:              {n_unknown_tier}")
-    print()
     print("  FINANCIALS")
     print(f"    Verified financials:               {n_verified} companies")
     print(f"    Inferred financials (abbrev. accts): {n_inferred} companies")
@@ -3374,7 +3205,6 @@ def print_terminal_summary(data: dict):
     print()
     print("  MARKET SIZING")
     print(f"    Top-down estimate:                 {td_display} (confidence: {td_conf})")
-    print(f"    Bottom-up (direct only, base 60%): {direct_display}")
     print(f"    Bottom-up (all players, base 60%): {all_display}")
     print()
     print("  KNOWN UNKNOWNS")
@@ -3468,12 +3298,11 @@ def main():
         log(f"[{ts()}] Discovery complete: {len(competitors)} unique companies found")
 
         # ------------------------------------------------------------
-        # STEP 3 — Competitor classification
+        # STEP 3 — (classification removed — all companies treated equally)
         # ------------------------------------------------------------
-        log(f"\n[{ts()}] STEP 3 — Competitor classification")
-        competitors = classify_competitors(
-            competitors, args.company, args.description, args.country
-        )
+        for c in competitors:
+            c["tier"] = "DIRECT"
+            c["classification_rationale"] = "All companies included"
 
         # ------------------------------------------------------------
         # STEP 4 — Financial data collection
