@@ -1548,9 +1548,13 @@ def collect_financials(competitors: list, registry_mode: dict) -> list:
 
         # Mode A — Companies House
         if registry_mode["mode"] == "A":
+            is_seed = comp.get("discovery_method") == "A_seed"
             # Step 1: try to scrape the company's own website for their reg number
-            # (most reliable — avoids name-search ambiguity)
-            if not reg_num and comp.get("website"):
+            # (most reliable — avoids name-search ambiguity).
+            # Skip for seeds — their names are exact CH names, and major retail
+            # websites (waitrose.com, asda.com) block scraping with CDN/bot protection,
+            # causing 3-retry × 20s timeouts per company.
+            if not reg_num and comp.get("website") and not is_seed:
                 scraped = _scrape_company_number_from_website(comp["website"])
                 if scraped:
                     reg_num = scraped
