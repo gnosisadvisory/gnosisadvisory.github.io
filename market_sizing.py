@@ -969,31 +969,37 @@ def deduplicate_companies(companies: list) -> list:
 
 
 def _ch_prescreen_sic_results(raw: list, max_fetches: int = 100,
-                               quality_cap: int = 30) -> list:
+                               quality_cap: int = 20) -> list:
     """
     Fetch the CH company profile for each SIC search result and HARD-FILTER to:
       - company_status == "active" (not dormant / dissolved)
-      - accounts.last_accounts.type NOT micro-entity
+      - accounts.last_accounts.type NOT micro-entity or small-company
       - accounts.last_accounts.made_up_to within the last 2 years
 
-    Micro-entity and dormant companies are completely discarded — they add no
-    useful financial data and only slow down the run.  If fewer than 5 quality
-    companies are found, borderline ones (stale accounts or profile unavailable)
-    are added to pad the list.
+    Account types ranked by desirability:
+      TIER_1 (full / group / plc)  — large companies above audit threshold
+      TIER_2 (small / total-exemption-full) — small but with real accounts
+      DROPPED — micro-entity, dormant, dissolved
 
+    Within quality, TIER_1 companies are returned first.
+    Micro-entity and dormant companies are completely discarded.
+    Small-company filers are only included to pad if fewer than 5 TIER_1 found.
     Returns at most `quality_cap` companies.
     """
     from datetime import timedelta
     cutoff = datetime.now() - timedelta(days=730)   # 2-year window
-    micro_types = {"micro-entity", "micro", "micro entity"}
-    dormant_statuses = {"dormant", "converted-closed", "dissolved"}
 
-    quality, border = [], []
+    micro_types  = {"micro-entity", "micro", "micro entity", "no accounts filed"}
+    dormant_statuses = {"dormant", "converted-closed", "dissolved"}
+    full_types   = {"full", "group", "audit-exemption-subsidiary",
+                    "filing-exemption-subsidiary"}
+
+    tier1, tier2, border = [], [], []
     n_micro = n_dormant = fetches = 0
 
     for comp in raw:
-        if len(quality) >= quality_cap:
-            break  # already have enough quality companies
+        if len(tier1) >= quality_cap:
+            break  # enough large companies found
 
         reg_num = comp.get("company_number", "") or comp.get("registry_number", "")
         if not reg_num or fetches >= max_fetches:
@@ -1012,15 +1018,15 @@ def _ch_prescreen_sic_results(raw: list, max_fetches: int = 100,
             n_dormant += 1
             continue   # hard drop
 
-        accts = profile.get("accounts", {})
-        last = accts.get("last_accounts", {})
-        acct_type = last.get("type", "").lower().replace("-", " ")
+        accts    = profile.get("accounts", {})
+        last     = accts.get("last_accounts", {})
+        acct_type = last.get("type", "").lower().replace("-", " ").strip()
         made_up_to = last.get("made_up_to", "")
 
-        is_micro = any(mt in acct_type for mt in micro_types)
-        if is_micro:
+        # Hard drop micro / no-accounts
+        if any(mt in acct_type for mt in micro_types) or acct_type == "":
             n_micro += 1
-            continue   # hard drop
+            continue
 
         is_recent = True
         if made_up_to:
@@ -1029,15 +1035,31 @@ def _ch_prescreen_sic_results(raw: list, max_fetches: int = 100,
             except ValueError:
                 pass
 
-        if is_recent:
-            quality.append(comp)
-        else:
-            border.append(comp)   # stale but non-micro — keep as fallback
+        if not is_recent:
+            border.append(comp)   # stale but non-micro — keep only as fallback
+            continue
 
-    # Pad with borderline only if we have very few quality companies
-    result = quality
+        # Bucket by account tier
+        normalised = acct_type.replace(" ", "-")
+        if normalised in full_types or "full" in normalised:
+            tier1.append(comp)
+        else:
+            tier2.append(comp)   # small / total-exemption etc.
+
+    # Build result: large-company full filers first, then small filers as padding
+    result = tier1
     if len(result) < 5:
-        result = quality + border[:max(0, 10 - len(quality))]
+        needed = min(10 - len(result), len(tier2))
+        result = tier1 + tier2[:needed]
+
+    log(f"  [{ts()}] CH pre-screen ({fetches} profiles fetched): "
+        f"{len(tier1)} full-account (large co.), "
+        f"{len(tier2)} small-account, "
+        f"{n_micro} micro-entity dropped, "
+        f"{n_dormant} dormant dropped — "
+        f"returning {len(result)} companies")
+
+    return result
 
     log(f"  [{ts()}] CH pre-screen ({fetches} profiles fetched): "
         f"{len(quality)} quality kept, "
@@ -1369,9 +1391,9 @@ def discover_competitors(company: str, country: str, description: str,
     all_companies = filtered
 
     # Hard cap: seeds and quality companies already dominate the front of the
-    # list.  Anything beyond 50 is noise from web search that adds no value to
+    # list.  Anything beyond 40 is noise from web search that adds no value to
     # the market sizing model and only slows the run down.
-    MAX_COMPANIES = 50
+    MAX_COMPANIES = 40
     if len(all_companies) > MAX_COMPANIES:
         log(f"  [{ts()}] Capping list at {MAX_COMPANIES} companies "
             f"(was {len(all_companies)} — trailing entries are lower-quality web signals)")
