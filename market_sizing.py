@@ -968,31 +968,33 @@ def deduplicate_companies(companies: list) -> list:
     return list(seen.values())
 
 
-def _ch_prescreen_sic_results(raw: list, max_fetches: int = 100) -> list:
+def _ch_prescreen_sic_results(raw: list, max_fetches: int = 100,
+                               quality_cap: int = 30) -> list:
     """
-    Fetch the CH company profile for each SIC search result and sort/filter by:
-      - company_status != "dormant"
-      - accounts.last_accounts.type not in ["micro-entity", "micro"]
+    Fetch the CH company profile for each SIC search result and HARD-FILTER to:
+      - company_status == "active" (not dormant / dissolved)
+      - accounts.last_accounts.type NOT micro-entity
       - accounts.last_accounts.made_up_to within the last 2 years
 
-    Returns three tiers in order:
-      QUALITY  — active, non-micro, recently filed (these are the ones worth processing)
-      BORDER   — active but stale accounts, or profile fetch failed
-      DROPPED  — dormant or micro-entity (appended last so they don't waste
-                 financial-collection budget but are still present for completeness)
+    Micro-entity and dormant companies are completely discarded — they add no
+    useful financial data and only slow down the run.  If fewer than 5 quality
+    companies are found, borderline ones (stale accounts or profile unavailable)
+    are added to pad the list.
 
-    Limits API calls to `max_fetches` to keep the pre-screen under ~4 minutes.
-    Companies without a registry_number are placed in BORDER automatically.
+    Returns at most `quality_cap` companies.
     """
     from datetime import timedelta
     cutoff = datetime.now() - timedelta(days=730)   # 2-year window
     micro_types = {"micro-entity", "micro", "micro entity"}
     dormant_statuses = {"dormant", "converted-closed", "dissolved"}
 
-    quality, border, dropped = [], [], []
-    fetches = 0
+    quality, border = [], []
+    n_micro = n_dormant = fetches = 0
 
     for comp in raw:
+        if len(quality) >= quality_cap:
+            break  # already have enough quality companies
+
         reg_num = comp.get("company_number", "") or comp.get("registry_number", "")
         if not reg_num or fetches >= max_fetches:
             border.append(comp)
@@ -1007,8 +1009,8 @@ def _ch_prescreen_sic_results(raw: list, max_fetches: int = 100) -> list:
 
         status = profile.get("company_status", "active").lower()
         if any(s in status for s in dormant_statuses):
-            dropped.append(comp)
-            continue
+            n_dormant += 1
+            continue   # hard drop
 
         accts = profile.get("accounts", {})
         last = accts.get("last_accounts", {})
@@ -1016,27 +1018,34 @@ def _ch_prescreen_sic_results(raw: list, max_fetches: int = 100) -> list:
         made_up_to = last.get("made_up_to", "")
 
         is_micro = any(mt in acct_type for mt in micro_types)
+        if is_micro:
+            n_micro += 1
+            continue   # hard drop
 
-        is_recent = True   # assume OK if no date present (new company)
+        is_recent = True
         if made_up_to:
             try:
                 is_recent = datetime.strptime(made_up_to[:10], "%Y-%m-%d") >= cutoff
             except ValueError:
                 pass
 
-        if is_micro:
-            dropped.append(comp)
-        elif not is_recent:
-            border.append(comp)
-        else:
+        if is_recent:
             quality.append(comp)
+        else:
+            border.append(comp)   # stale but non-micro — keep as fallback
+
+    # Pad with borderline only if we have very few quality companies
+    result = quality
+    if len(result) < 5:
+        result = quality + border[:max(0, 10 - len(quality))]
 
     log(f"  [{ts()}] CH pre-screen ({fetches} profiles fetched): "
-        f"{len(quality)} quality (non-micro, active, recent), "
-        f"{len(border)} borderline, "
-        f"{len(dropped)} micro/dormant (de-prioritised)")
+        f"{len(quality)} quality kept, "
+        f"{n_micro} micro-entity dropped, "
+        f"{n_dormant} dormant dropped, "
+        f"{len(border)} borderline (used only if quality < 5)")
 
-    return quality + border + dropped
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -1358,6 +1367,15 @@ def discover_competitors(company: str, country: str, description: str,
         if not any(nd in site for nd in noise_domains):
             filtered.append(c)
     all_companies = filtered
+
+    # Hard cap: seeds and quality companies already dominate the front of the
+    # list.  Anything beyond 50 is noise from web search that adds no value to
+    # the market sizing model and only slows the run down.
+    MAX_COMPANIES = 50
+    if len(all_companies) > MAX_COMPANIES:
+        log(f"  [{ts()}] Capping list at {MAX_COMPANIES} companies "
+            f"(was {len(all_companies)} — trailing entries are lower-quality web signals)")
+        all_companies = all_companies[:MAX_COMPANIES]
 
     log(f"  [{ts()}] Final deduplicated competitor list: {len(all_companies)} companies")
 
