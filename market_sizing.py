@@ -968,7 +968,7 @@ def deduplicate_companies(companies: list) -> list:
     return list(seen.values())
 
 
-def _ch_prescreen_sic_results(raw: list, max_fetches: int = 100,
+def _ch_prescreen_sic_results(raw: list, max_fetches: int = 20,
                                quality_cap: int = 4) -> list:
     """
     Fetch the CH company profile for each SIC search result and HARD-FILTER to:
@@ -998,6 +998,9 @@ def _ch_prescreen_sic_results(raw: list, max_fetches: int = 100,
     n_micro = n_dormant = fetches = 0
 
     for comp in raw:
+        # Stop once we have enough candidates to fill quality_cap
+        if len(tier1) + len(tier2) >= quality_cap:
+            break
         if len(tier1) >= quality_cap:
             break  # enough large companies found
 
