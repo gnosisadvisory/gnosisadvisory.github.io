@@ -539,21 +539,37 @@ def ch_get_financials(company_number: str) -> list:
         # Try to get document links and fetch XBRL/iXBRL data
         links = filing.get("links", {})
         doc_url = links.get("document_metadata", "")
+        if not doc_url:
+            log(f"      No document_metadata link for filing {filing_year} "
+                f"({filing.get('type', '?')})")
         if doc_url:
             doc_resp = fetch_url(doc_url, auth=_ch_auth())
+            if not doc_resp or doc_resp.status_code != 200:
+                log(f"      document_metadata fetch failed "
+                    f"(status {doc_resp.status_code if doc_resp else 'none'})")
             if doc_resp and doc_resp.status_code == 200:
                 try:
                     doc_data = doc_resp.json()
                     resources = doc_data.get("resources", {})
-                    for mime, meta in resources.items():
-                        if "xhtml" in mime or "xml" in mime:
-                            doc_dl = meta.get("links", {}).get("download", "")
-                            if doc_dl:
-                                xbrl_resp = fetch_url(doc_dl, auth=_ch_auth())
-                                if xbrl_resp and xbrl_resp.status_code == 200:
-                                    _parse_xbrl_into_snap(xbrl_resp.text, snap)
+                    # Accept any HTML/XML/XBRL variant — iXBRL accounts are
+                    # often served as text/html or application/xhtml+xml.
+                    xbrl_mimes = [m for m in resources
+                                  if any(t in m for t in
+                                         ("xhtml", "xml", "xbrl", "html"))]
+                    if not xbrl_mimes:
+                        log(f"      No XBRL resource in doc metadata "
+                            f"(MIME types: {list(resources.keys())})")
+                    for mime in xbrl_mimes:
+                        meta = resources[mime]
+                        doc_dl = meta.get("links", {}).get("download", "")
+                        if doc_dl:
+                            xbrl_resp = fetch_url(doc_dl, auth=_ch_auth())
+                            if xbrl_resp and xbrl_resp.status_code == 200:
+                                _parse_xbrl_into_snap(xbrl_resp.text, snap)
+                                if snap["turnover"] is not None:
+                                    break  # found what we need
                 except Exception as xe:
-                    log(f"    XBRL parse error: {xe}")
+                    log(f"      XBRL parse error: {xe}")
 
         snapshots.append(snap)
 
@@ -562,14 +578,17 @@ def ch_get_financials(company_number: str) -> list:
 def _parse_xbrl_into_snap(xbrl_text: str, snap: dict):
     """Parse iXBRL/XBRL content to extract financial values."""
     try:
-        soup = BeautifulSoup(xbrl_text, "lxml")
-        tag_map = {
-            "turnover": ["turnover", "revenue", "Turnover", "Revenue",
-                         "ix:nonfraction[name*='Turnover']",
-                         "ix:nonfraction[name*='Revenue']"],
-        }
+        # iXBRL documents contain namespace-prefixed tags like <ix:nonFraction>.
+        # lxml-xml handles XML namespaces correctly; fall back to lxml (HTML mode)
+        # if the document isn't valid XML (some CH docs are HTML with inline XBRL).
+        try:
+            soup = BeautifulSoup(xbrl_text, "lxml-xml")
+        except Exception:
+            soup = BeautifulSoup(xbrl_text, "lxml")
+
         # Generic numeric tag extraction
-        for tag in soup.find_all(["ix:nonfraction", "xbrli:measure"]):
+        for tag in soup.find_all(["ix:nonfraction", "ix:nonFraction",
+                                   "xbrli:measure", "nonFraction"]):
             name = (tag.get("name", "") or "").lower()
             val_str = tag.get_text(strip=True).replace(",", "").replace("£", "")
             try:
@@ -1611,6 +1630,30 @@ def _parse_oc_financials(data: dict) -> list:
             results.append(snap)
     return results
 
+def _trading_name(company_name: str) -> str:
+    """Strip corporate-suffix noise to produce a web-searchable trading name.
+
+    'J SAINSBURY PLC'          → 'Sainsbury'
+    'WM MORRISON SUPERMARKETS PLC' → 'Morrison'
+    'MARKS AND SPENCER PLC'    → 'Marks And Spencer'
+    'ASDA STORES LIMITED'      → 'Asda'
+    'LIDL GREAT BRITAIN LIMITED' → 'Lidl'
+    """
+    name = company_name.upper()
+    # Remove trailing legal forms first (order matters — longest first)
+    for suffix in ["PUBLIC LIMITED COMPANY", "PLC", "LIMITED", "LTD", "LLP"]:
+        name = re.sub(r'\b' + suffix + r'\b', ' ', name)
+    # Strip generic sector/geography noise words
+    for noise in ["SUPERMARKETS", "SUPERMARKET", "STORES", "STORE",
+                  "FOODS", "FOOD", "GREAT BRITAIN", "HOLDINGS",
+                  "CORPORATION", "ENTERPRISES", "INTERNATIONAL"]:
+        name = re.sub(r'\b' + noise + r'\b', ' ', name)
+    # Drop a leading 1-2 capital-letter initial ("J ", "WM ")
+    name = re.sub(r'^\s*[A-Z]{1,2}\s+', '', name.strip())
+    name = re.sub(r'\s+', ' ', name).strip()
+    return name.title()
+
+
 def _extract_revenue_value(text: str) -> float | None:
     """
     Return the first plausible annual revenue/turnover figure found in text.
@@ -1650,9 +1693,13 @@ def _extract_revenue_value(text: str) -> float | None:
 
 def _search_web_financials(company_name: str, current_year: int) -> list:
     """Search for revenue figures, reading both snippets and actual pages."""
+    # CH registered names ("J SAINSBURY PLC") are rarely used in news/financial
+    # articles.  Use a clean trading name ("Sainsbury") as primary search term.
+    trading = _trading_name(company_name)
+    search_name = trading if len(trading) >= 4 else company_name
     queries = [
-        f'"{company_name}" revenue OR turnover {current_year - 1}',
-        f'"{company_name}" annual results {current_year - 1}',
+        f'"{search_name}" revenue OR turnover {current_year - 1}',
+        f'"{search_name}" annual results {current_year - 1}',
         f'"{company_name}" annual report {current_year - 2}',
     ]
 
