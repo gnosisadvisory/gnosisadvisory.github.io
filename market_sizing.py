@@ -209,6 +209,23 @@ def _search_bing(query: str, num_results: int = 10) -> list:
         # Scope to #b_results to avoid any remaining stray elements
         container = soup.select_one("#b_results") or soup
         results = []
+
+        # --- Rich-answer / knowledge-panel extraction ---
+        # For financial queries on major companies, Bing often shows a knowledge
+        # card (div.b_ans, div.b_rich, .b_entityTP) instead of organic li.b_algo
+        # results.  Extract any text from those blocks and synthesise a result.
+        for ans_el in container.select(
+            "div.b_ans, div.b_rich, .b_entityTP, .b_factrow, "
+            ".financeData, .b_vPanel, div[data-tag='LocalBusiness']"
+        ):
+            ans_text = ans_el.get_text(" ", strip=True)
+            if ans_text:
+                results.append({
+                    "title": "Bing knowledge panel",
+                    "url": "",
+                    "snippet": ans_text[:500],
+                })
+
         for item in container.select("li.b_algo")[:num_results]:
             # Secondary ad check: some sponsored results survive container removal.
             # Reject items that have an explicit "Ad" or "Sponsored" label.
@@ -1700,7 +1717,8 @@ def _search_web_financials(company_name: str, current_year: int) -> list:
     queries = [
         f'"{search_name}" revenue OR turnover {current_year - 1}',
         f'"{search_name}" annual results {current_year - 1}',
-        f'"{company_name}" annual report {current_year - 2}',
+        # Wikipedia infoboxes contain reliable revenue figures for major companies
+        f'site:en.wikipedia.org "{search_name}"',
     ]
 
     def _make_snap(val: float, url: str) -> dict:
@@ -1717,22 +1735,24 @@ def _search_web_financials(company_name: str, current_year: int) -> list:
             "source_url": url,
         }
 
-    for q in queries[:2]:  # 2 queries per company max
+    for q in queries:
         web_results = search_web(q, num_results=5)
         for r in web_results:
             url = r.get("url", "")
-            if '›' in url or not url:
-                continue
 
-            # --- Pass 1: snippet (fast, no extra request) ---
+            # --- Pass 1: snippet + knowledge-panel text (fast, no extra request) ---
             text = r.get("snippet", "") + " " + r.get("title", "")
             val = _extract_revenue_value(text)
             if val:
-                return [_make_snap(val, url)]
+                return [_make_snap(val, url or q)]
 
             # --- Pass 2: fetch the actual page for richer text ---
-            # Only fetch HTML pages that look like investor/results pages
-            is_report_page = any(kw in url.lower() for kw in
+            # Fetch Wikipedia pages, investor/results pages, and PDFs.
+            # '›' in url means it's a Bing display breadcrumb, not a real URL.
+            if '›' in url or not url:
+                continue
+            is_wikipedia = "wikipedia.org/wiki/" in url.lower()
+            is_report_page = is_wikipedia or any(kw in url.lower() for kw in
                                  ("annual", "result", "investor", "finance",
                                   "report", "turnover", "revenue", "accounts"))
             is_pdf = url.lower().endswith(".pdf")
@@ -1747,6 +1767,20 @@ def _search_web_financials(company_name: str, current_year: int) -> list:
                 # PDFs: scan raw bytes for embedded text strings
                 raw = page_resp.content[:150_000].decode("latin-1", errors="ignore")
                 val = _extract_revenue_value(raw)
+            elif is_wikipedia:
+                soup = BeautifulSoup(page_resp.text, "lxml")
+                # Try infobox <th>Revenue</th><td>...</td> first — more reliable
+                val = None
+                for th in soup.find_all("th"):
+                    if "revenue" in th.get_text().lower():
+                        td = th.find_next_sibling("td")
+                        if td:
+                            val = _extract_revenue_value(td.get_text(" ", strip=True))
+                            if val:
+                                break
+                # Fall back to full page text
+                if not val:
+                    val = _extract_revenue_value(soup.get_text(" ", strip=True)[:60_000])
             else:
                 soup = BeautifulSoup(page_resp.text, "lxml")
                 page_text = soup.get_text(" ", strip=True)
