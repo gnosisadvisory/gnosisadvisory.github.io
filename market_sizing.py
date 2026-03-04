@@ -1084,6 +1084,29 @@ SECTOR_SEEDS: dict = {
         "LIDL SAS",
         "ALDI MARCHE SAS",
     ],
+    # UK car manufacturers (SIC 291xx)
+    ("uk", "291"): [
+        "JAGUAR LAND ROVER LIMITED",
+        "BENTLEY MOTORS LIMITED",
+        "ROLLS-ROYCE MOTOR CARS LIMITED",
+        "ASTON MARTIN LAGONDA LIMITED",
+        "MCLAREN AUTOMOTIVE LIMITED",
+        "LOTUS CARS LIMITED",
+        "VAUXHALL MOTORS LIMITED",
+        "TOYOTA MANUFACTURING (UK) LIMITED",
+    ],
+    # UK car distributors / importers (SIC 451xx)
+    ("uk", "451"): [
+        "MERCEDES-BENZ CARS UK LIMITED",
+        "BMW (UK) LIMITED",
+        "VOLKSWAGEN GROUP UNITED KINGDOM LIMITED",
+        "FORD MOTOR COMPANY LIMITED",
+        "TOYOTA (GB) PLC",
+        "KIA (UK) LIMITED",
+        "HYUNDAI MOTOR UK LIMITED",
+        "STELLANTIS AUTO SAS",
+        "JAGUAR LAND ROVER LIMITED",
+    ],
 }
 
 # ---------------------------------------------------------------------------
@@ -1118,6 +1141,20 @@ SEED_REVENUES: dict = {
     "WETHERSPOON (J D) PLC":            (1_915_000_000, 2024, "JD Wetherspoon Annual Report 2024"),
     "WHITBREAD PLC":                    (2_970_000_000, 2024, "Whitbread Annual Report 2024"),
     "WAGAMAMA LIMITED":                   (450_000_000, 2023, "The Restaurant Group Annual Report 2023"),
+    # UK car manufacturers
+    "JAGUAR LAND ROVER LIMITED":       (22_000_000_000, 2024, "JLR Annual Report 2023/24"),
+    "BENTLEY MOTORS LIMITED":           (2_870_000_000, 2022, "Bentley Motors Accounts 2022"),
+    "ASTON MARTIN LAGONDA LIMITED":     (1_636_000_000, 2023, "Aston Martin Annual Report 2023"),
+    "MCLAREN AUTOMOTIVE LIMITED":         (600_000_000, 2022, "McLaren Automotive Accounts 2022"),
+    "VAUXHALL MOTORS LIMITED":          (5_600_000_000, 2022, "Vauxhall Motors Accounts 2022"),
+    # UK car distributors / importers
+    "MERCEDES-BENZ CARS UK LIMITED":   (14_800_000_000, 2023, "Mercedes-Benz Cars UK Accounts 2023"),
+    "BMW (UK) LIMITED":                (10_800_000_000, 2023, "BMW UK Accounts 2023"),
+    "VOLKSWAGEN GROUP UNITED KINGDOM LIMITED": (12_400_000_000, 2023, "VW Group UK Accounts 2023"),
+    "FORD MOTOR COMPANY LIMITED":      (13_200_000_000, 2023, "Ford Motor Co UK Accounts 2023"),
+    "TOYOTA (GB) PLC":                  (4_800_000_000, 2023, "Toyota GB Accounts 2023"),
+    "KIA (UK) LIMITED":                 (3_100_000_000, 2023, "Kia UK Accounts 2023"),
+    "HYUNDAI MOTOR UK LIMITED":         (2_900_000_000, 2023, "Hyundai Motor UK Accounts 2023"),
     # UK software / SaaS
     "SAGE GROUP PLC":                   (2_237_000_000, 2024, "Sage Annual Report 2024"),
     "KAINOS GROUP PLC":                   (382_000_000, 2024, "Kainos Annual Report 2024"),
@@ -1225,8 +1262,8 @@ def deduplicate_companies(companies: list) -> list:
     return list(seen.values())
 
 
-def _ch_prescreen_sic_results(raw: list, max_fetches: int = 20,
-                               quality_cap: int = 4) -> list:
+def _ch_prescreen_sic_results(raw: list, max_fetches: int = 40,
+                               quality_cap: int = 8) -> list:
     """
     Fetch the CH company profile for each SIC search result and HARD-FILTER to:
       - company_status == "active" (not dormant / dissolved)
