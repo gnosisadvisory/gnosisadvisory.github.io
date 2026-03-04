@@ -18,6 +18,7 @@ import sys
 import time
 import traceback
 import zipfile
+import zlib
 from datetime import datetime
 from urllib.parse import urlencode, urljoin, urlparse
 
@@ -615,6 +616,32 @@ def ch_get_financials(company_number: str) -> list:
                                 log(f"      ZIP parse error: {ze}")
                             if snap["turnover"] is not None:
                                 break
+                    # Fallback: download the PDF itself and extract revenue
+                    # via raw zlib stream decompression + regex.  The CH
+                    # document download domain may differ from the API domain,
+                    # so we attempt this and log the outcome either way.
+                    if snap["turnover"] is None:
+                        pdf_mimes = [m for m in resources
+                                     if "pdf" in m.lower()]
+                        for pmime in pdf_mimes[:1]:
+                            pmeta = resources[pmime]
+                            pdl = pmeta.get("links", {}).get("download", "")
+                            if not pdl:
+                                continue
+                            log(f"      Trying PDF revenue extraction …")
+                            pdf_bytes = _ch_download_pdf_first_mb(
+                                pdl, _ch_auth())
+                            if pdf_bytes:
+                                rev = _extract_revenue_from_pdf(pdf_bytes)
+                                if rev:
+                                    snap["turnover"] = rev
+                                    log(f"      PDF → revenue = "
+                                        f"£{rev/1e9:.2f}bn")
+                                else:
+                                    log(f"      PDF downloaded but no "
+                                        f"revenue pattern found")
+                            break
+
                 except Exception as xe:
                     log(f"      XBRL parse error: {xe}")
 
@@ -689,6 +716,129 @@ def _parse_xbrl_into_snap(xbrl_text: str, snap: dict):
                     snap["director_emoluments"] = val
     except Exception as e:
         pass
+
+# ---------------------------------------------------------------------------
+# MODULE 3A — PDF revenue extraction (stdlib only, no external PDF library)
+# ---------------------------------------------------------------------------
+def _extract_revenue_from_pdf(pdf_bytes: bytes) -> float | None:
+    """
+    Extract the most recent revenue/turnover figure from a UK accounts PDF.
+
+    Strategy (stdlib only — no pdfplumber/pypdf dependency):
+      1. Decompress every FlateDecode stream with zlib and collect the text.
+      2. Also scan the raw bytes — catches uncompressed text streams and
+         plain-ASCII fragments embedded outside formal streams.
+      3. Apply a priority-ordered set of regexes that match the patterns
+         actually seen in UK Companies House accounts:
+           a) Narrative: "Revenue increased … from £10,874,647k"
+           b) Narrative with 'to':  "Revenue … to £11,732,965k"
+           c) Table row:  "Revenue  11,732,965  10,874,647"  (£'000 units)
+           d) Table row with £:  "Revenue  £11,732,965"
+           e) Turnover variants of the above
+
+    UK statutory accounts report in £'000.  Values that look like thousands
+    (100 000 – 999 999 999) are multiplied by 1 000 to produce raw GBP.
+    Values already in raw GBP (≥ 1 000 000 000) are returned as-is.
+    """
+    chunks: list[str] = []
+
+    # 1. Decompress FlateDecode streams
+    for m in re.finditer(rb'stream\r?\n(.*?)\r?\nendstream', pdf_bytes, re.DOTALL):
+        data = m.group(1)
+        try:
+            dec = zlib.decompress(data)
+            chunks.append(dec.decode('latin-1', errors='replace'))
+        except Exception:
+            # Try raw bytes — sometimes streams are uncompressed
+            try:
+                raw = data.decode('latin-1', errors='replace')
+                if re.search(r'[Rr]evenue|[Tt]urnover', raw):
+                    chunks.append(raw)
+            except Exception:
+                pass
+
+    # 2. Also scan raw PDF bytes (catches text outside formal streams)
+    try:
+        chunks.append(pdf_bytes.decode('latin-1', errors='replace'))
+    except Exception:
+        pass
+
+    combined = '\n'.join(chunks)
+
+    def _to_gbp(val_str: str) -> float | None:
+        try:
+            v = float(val_str.replace(',', '').replace(' ', ''))
+            if v <= 0:
+                return None
+            # Figures in £'000 (typical UK accounts) land in 100k–999M range
+            if 100_000 <= v <= 999_999_999:
+                v *= 1_000
+            if v >= 1_000_000:          # At least £1m — filters stray numbers
+                return v
+        except Exception:
+            pass
+        return None
+
+    patterns = [
+        # (a) narrative "from £10,874,647k"  → prior year; also catches current
+        re.compile(
+            r'[Rr]evenue[^£\d]{0,300}£\s*([\d,\s]+)\s*k',
+            re.DOTALL),
+        # (b) narrative "to £11,732,965k"
+        re.compile(
+            r'\bto\s+£\s*([\d,\s]+)\s*k\b',
+            re.DOTALL),
+        # (c) table row — first number after "Revenue" keyword (£'000, no £ sign)
+        #     matches: "Revenue  11,732,965" or "Revenue\n11732965"
+        re.compile(
+            r'[Rr]evenue\b[\s\S]{0,200}?\b([\d]{1,3}(?:,[\d]{3}){2,})\b',
+            re.DOTALL),
+        # (d) table row with £ sign
+        re.compile(
+            r'[Rr]evenue\b[\s\S]{0,200}?£\s*([\d]{1,3}(?:,[\d]{3}){1,})\b',
+            re.DOTALL),
+        # (e) Turnover fallback — same patterns
+        re.compile(
+            r'[Tt]urnover\b[\s\S]{0,200}?\b([\d]{1,3}(?:,[\d]{3}){2,})\b',
+            re.DOTALL),
+    ]
+
+    for pat in patterns:
+        for m in pat.finditer(combined):
+            val = _to_gbp(m.group(1))
+            if val:
+                return val
+
+    return None
+
+
+def _ch_download_pdf_first_mb(url: str, auth) -> bytes | None:
+    """
+    Stream the first 1 MB of a CH PDF (covers the strategic report section
+    for most UK accounts, which is where narrative revenue figures appear).
+    Returns raw bytes or None on failure.
+    """
+    try:
+        import requests as _req
+        sess = _req.Session()
+        resp = sess.get(url, auth=auth, stream=True, timeout=30,
+                        headers={"User-Agent": "python-requests/2.31 market-sizing-tool/1.0"})
+        if resp.status_code != 200:
+            log(f"      PDF download HTTP {resp.status_code}")
+            return None
+        chunks = []
+        total = 0
+        for chunk in resp.iter_content(chunk_size=65_536):
+            chunks.append(chunk)
+            total += len(chunk)
+            if total >= 1_048_576:   # 1 MB cap
+                break
+        resp.close()
+        return b''.join(chunks)
+    except Exception as e:
+        log(f"      PDF download error: {e}")
+        return None
+
 
 # ---------------------------------------------------------------------------
 # MODULE 3B — OpenCorporates
@@ -949,7 +1099,7 @@ SEED_REVENUES: dict = {
     "J SAINSBURY PLC":                  (31_739_000_000, 2024, "Sainsbury's Annual Report 2024"),
     "ASDA STORES LIMITED":              (22_245_000_000, 2023, "Asda Annual Report 2023"),
     "WM MORRISON SUPERMARKETS PLC":     (18_978_000_000, 2024, "Morrisons Annual Report 2024"),
-    "LIDL GREAT BRITAIN LIMITED":        (9_756_000_000, 2023, "Lidl GB Accounts 2022/23"),
+    "LIDL GREAT BRITAIN LIMITED":       (11_732_965_000, 2025, "Lidl GB Accounts 2024/25"),
     "ALDI STORES LIMITED":             (15_521_000_000, 2023, "Aldi Stores Accounts 2022/23"),
     "MARKS AND SPENCER PLC":           (13_041_000_000, 2024, "M&S Annual Report 2024"),
     "WAITROSE LIMITED":                 (7_776_000_000, 2024, "John Lewis Partnership Annual Report 2024"),
