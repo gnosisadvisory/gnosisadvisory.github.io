@@ -1553,16 +1553,45 @@ def collect_financials(competitors: list, registry_mode: dict) -> list:
                         data_quality = "VERIFIED"
                         data_source = "OpenCorporates"
 
-        # Web-based financial discovery (all modes as fallback).
-        # Also fires for INFERRED companies: abbreviated/micro-entity accounts
-        # contain balance-sheet data but no P&L turnover.  For well-known
-        # companies the web search can supply the missing revenue figure.
-        #
-        # Skip web search for companies discovered via the SIC registry that
-        # only have micro-entity / abbreviated accounts AND no balance-sheet
-        # data worth inferring from — these are typically tiny corner shops
-        # with no web presence, so web searches would just waste rate-limit
-        # budget without finding anything useful.
+        # ------------------------------------------------------------------ #
+        # Fallback 1 — Wikipedia API (reliable, no Bing/DDG dependency)      #
+        # UK companies file PDF accounts at CH; web searches for financial    #
+        # data are blocked by Bing rate-limits.  Wikipedia infoboxes carry    #
+        # reliable revenue figures for all major companies and the MediaWiki  #
+        # API is free, unauthenticated, and has generous rate limits.         #
+        # ------------------------------------------------------------------ #
+        if data_quality in ("UNKNOWN", "INFERRED"):
+            wiki_rev, wiki_url = _get_wikipedia_revenue(_trading_name(name))
+            if wiki_rev:
+                if data_quality == "INFERRED" and financials:
+                    # Merge: inject Wikipedia turnover into the CH balance-sheet snap
+                    for fin in financials:
+                        if fin.get("turnover") is None:
+                            fin["turnover"] = wiki_rev
+                    data_quality = "VERIFIED"
+                    data_source = "Companies House (balance sheet) + Wikipedia (turnover)"
+                    data_source_url = wiki_url
+                else:
+                    financials = [{
+                        "year": current_year - 1,
+                        "turnover": wiki_rev,
+                        "operating_profit": None, "net_profit": None,
+                        "total_assets": None, "net_assets": None,
+                        "employees": None, "trade_debtors": None,
+                        "trade_creditors": None, "staff_costs": None,
+                        "deferred_income": None, "fixed_assets": None,
+                        "director_emoluments": None, "abbreviated": False,
+                        "filing_date": str(current_year - 1),
+                        "source_url": wiki_url,
+                    }]
+                    data_quality = "ESTIMATED"
+                    data_source = "Wikipedia"
+                    data_source_url = wiki_url
+
+        # ------------------------------------------------------------------ #
+        # Fallback 2 — Web search (Bing → DDG), skipped for micro/dormant    #
+        # corner-shop registrations with no useful web presence.              #
+        # ------------------------------------------------------------------ #
         is_registry_micro = (
             comp.get("discovery_method") == "A_companies_house"
             and data_quality == "INFERRED"
@@ -1577,8 +1606,6 @@ def collect_financials(competitors: list, registry_mode: dict) -> list:
             web_financials = _search_web_financials(name, current_year)
             if web_financials:
                 if data_quality == "INFERRED" and financials:
-                    # Merge: keep the richer balance-sheet snapshot from CH,
-                    # inject the web-sourced turnover into it.
                     web_turnover = web_financials[0].get("turnover")
                     if web_turnover:
                         for fin in financials:
@@ -1646,6 +1673,74 @@ def _parse_oc_financials(data: dict) -> list:
             }
             results.append(snap)
     return results
+
+def _get_wikipedia_revenue(trading_name: str) -> tuple:
+    """
+    Fetch a company's revenue from its Wikipedia infobox via the MediaWiki API.
+    Returns (revenue_float, source_url) or (None, "").
+
+    Uses two API calls:
+      1. /w/api.php?action=query&list=search  — find the article title
+      2. /w/api.php?action=query&prop=revisions — fetch the wikitext infobox
+
+    The Wikipedia API is unauthenticated, has generous rate limits, and is far
+    more reliable than scraping Bing/DDG for financial data.
+    """
+    WP_API = "https://en.wikipedia.org/w/api.php"
+
+    # --- Step 1: find the article ---
+    search_resp = fetch_url(WP_API, params={
+        "action": "query", "list": "search",
+        "srsearch": f"{trading_name} supermarket OR retailer OR company",
+        "srlimit": 5, "format": "json",
+    })
+    if not search_resp or search_resp.status_code != 200:
+        return None, ""
+    try:
+        hits = search_resp.json().get("query", {}).get("search", [])
+        if not hits:
+            return None, ""
+        # Pick the hit whose title most closely matches the trading name
+        tl = trading_name.lower()
+        title = next(
+            (h["title"] for h in hits
+             if any(w in h["title"].lower() for w in tl.split())),
+            hits[0]["title"]
+        )
+    except Exception:
+        return None, ""
+
+    wiki_url = f"https://en.wikipedia.org/wiki/{title.replace(' ', '_')}"
+
+    # --- Step 2: fetch wikitext ---
+    content_resp = fetch_url(WP_API, params={
+        "action": "query", "titles": title,
+        "prop": "revisions", "rvprop": "content",
+        "rvslots": "main", "format": "json",
+    })
+    if not content_resp or content_resp.status_code != 200:
+        return None, ""
+    try:
+        pages = content_resp.json().get("query", {}).get("pages", {})
+        for page in pages.values():
+            revs = page.get("revisions", [])
+            if not revs:
+                continue
+            # MediaWiki API returns content in slots (new) or directly (old format)
+            wikitext = (revs[0].get("slots", {}).get("main", {}).get("*", "")
+                        or revs[0].get("*", ""))
+            if not wikitext:
+                continue
+            # Extract |revenue = ... from infobox
+            m = re.search(r'\|\s*revenue\s*=\s*([^\n|]+)', wikitext, re.IGNORECASE)
+            if m:
+                raw = m.group(1).strip()
+                val = _extract_revenue_value(raw)
+                if val:
+                    return val, wiki_url
+    except Exception:
+        pass
+    return None, ""
 
 def _trading_name(company_name: str) -> str:
     """Strip corporate-suffix noise to produce a web-searchable trading name.
