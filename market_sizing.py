@@ -1116,52 +1116,160 @@ SECTOR_SEEDS: dict = {
 # when XBRL is unavailable (e.g. large PLCs file PDF-only group accounts).
 # Format: company_name_upper → (turnover_gbp, financial_year, source_label)
 # ---------------------------------------------------------------------------
+# SEED_REVENUES: curated multi-year financial data for major players that file
+# PDF-only accounts at Companies House (no machine-readable XBRL available).
+# Format: company_name_upper → {"source": str, "years": [{"year": int,
+#   "turnover": int, "operating_profit": int|None, "net_profit": int|None,
+#   "employees": int|None}, ...]}
+# Multiple year entries enable CAGR calculation and the trend chart.
+# All figures in GBP (£). Source: published annual reports / CH accounts.
 SEED_REVENUES: dict = {
-    # UK grocery / food retail
-    "TESCO PLC":                        (68_191_000_000, 2024, "Tesco Annual Report 2024"),
-    "J SAINSBURY PLC":                  (31_739_000_000, 2024, "Sainsbury's Annual Report 2024"),
-    "ASDA STORES LIMITED":              (22_245_000_000, 2023, "Asda Annual Report 2023"),
-    "WM MORRISON SUPERMARKETS PLC":     (18_978_000_000, 2024, "Morrisons Annual Report 2024"),
-    "LIDL GREAT BRITAIN LIMITED":       (11_732_965_000, 2025, "Lidl GB Accounts 2024/25"),
-    "ALDI STORES LIMITED":             (15_521_000_000, 2023, "Aldi Stores Accounts 2022/23"),
-    "MARKS AND SPENCER PLC":           (13_041_000_000, 2024, "M&S Annual Report 2024"),
-    "WAITROSE LIMITED":                 (7_776_000_000, 2024, "John Lewis Partnership Annual Report 2024"),
-    "ICELAND FOODS LIMITED":            (3_445_000_000, 2024, "Iceland Foods Accounts 2023/24"),
-    "OCADO GROUP PLC":                  (2_833_000_000, 2023, "Ocado Annual Report 2023"),
-    "CO-OPERATIVE GROUP LIMITED":      (11_907_000_000, 2023, "Co-op Group Annual Report 2023"),
-    "BOOKER LIMITED":                   (7_000_000_000, 2024, "Tesco Group Annual Report 2024 (Booker wholesale)"),
-    # UK food & drink manufacturing
-    "ASSOCIATED BRITISH FOODS PLC":    (19_763_000_000, 2024, "ABF Annual Report 2024"),
-    "PREMIER FOODS PLC":                (1_040_000_000, 2024, "Premier Foods Annual Report 2024"),
-    "GREENCORE GROUP PLC":              (1_924_000_000, 2023, "Greencore Annual Report 2023"),
-    "BAKKAVOR GROUP PLC":               (2_232_000_000, 2023, "Bakkavor Annual Report 2023"),
-    "CRANSWICK PLC":                    (2_401_000_000, 2024, "Cranswick Annual Report 2024"),
-    # UK pubs / restaurants
-    "MITCHELLS & BUTLERS PLC":          (2_937_000_000, 2023, "Mitchells & Butlers Annual Report 2023"),
-    "WETHERSPOON (J D) PLC":            (1_915_000_000, 2024, "JD Wetherspoon Annual Report 2024"),
-    "WHITBREAD PLC":                    (2_970_000_000, 2024, "Whitbread Annual Report 2024"),
-    "WAGAMAMA LIMITED":                   (450_000_000, 2023, "The Restaurant Group Annual Report 2023"),
-    # UK car manufacturers
-    "JAGUAR LAND ROVER LIMITED":       (22_000_000_000, 2024, "JLR Annual Report 2023/24"),
-    "BENTLEY MOTORS LIMITED":           (2_870_000_000, 2022, "Bentley Motors Accounts 2022"),
-    "ASTON MARTIN LAGONDA LIMITED":     (1_636_000_000, 2023, "Aston Martin Annual Report 2023"),
-    "MCLAREN AUTOMOTIVE LIMITED":         (600_000_000, 2022, "McLaren Automotive Accounts 2022"),
-    "VAUXHALL MOTORS LIMITED":          (5_600_000_000, 2022, "Vauxhall Motors Accounts 2022"),
-    # UK car distributors / importers
-    "MERCEDES-BENZ CARS UK LIMITED":   (14_800_000_000, 2023, "Mercedes-Benz Cars UK Accounts 2023"),
-    "BMW (UK) LIMITED":                (10_800_000_000, 2023, "BMW UK Accounts 2023"),
-    "VOLKSWAGEN GROUP UNITED KINGDOM LIMITED": (12_400_000_000, 2023, "VW Group UK Accounts 2023"),
-    "FORD MOTOR COMPANY LIMITED":      (13_200_000_000, 2023, "Ford Motor Co UK Accounts 2023"),
-    "TOYOTA (GB) PLC":                  (4_800_000_000, 2023, "Toyota GB Accounts 2023"),
-    "KIA (UK) LIMITED":                 (3_100_000_000, 2023, "Kia UK Accounts 2023"),
-    "HYUNDAI MOTOR UK LIMITED":         (2_900_000_000, 2023, "Hyundai Motor UK Accounts 2023"),
-    # UK software / SaaS
-    "SAGE GROUP PLC":                   (2_237_000_000, 2024, "Sage Annual Report 2024"),
-    "KAINOS GROUP PLC":                   (382_000_000, 2024, "Kainos Annual Report 2024"),
-    # UK financial services
-    "REVOLUT LIMITED":                  (2_200_000_000, 2023, "Revolut Annual Report 2023"),
-    "MONZO BANK LIMITED":                 (880_000_000, 2024, "Monzo Annual Report 2024"),
-    "STARLING BANK LIMITED":              (682_000_000, 2023, "Starling Annual Report 2023"),
+    # ------------------------------------------------------------------ #
+    # UK grocery / food retail                                            #
+    # ------------------------------------------------------------------ #
+    "TESCO PLC": {"source": "Tesco Annual Report 2024", "years": [
+        {"year": 2024, "turnover": 68_191_000_000},
+    ]},
+    "J SAINSBURY PLC": {"source": "Sainsbury's Annual Report 2024", "years": [
+        {"year": 2024, "turnover": 31_739_000_000},
+    ]},
+    "ASDA STORES LIMITED": {"source": "Asda Annual Report 2023", "years": [
+        {"year": 2023, "turnover": 22_245_000_000},
+    ]},
+    "WM MORRISON SUPERMARKETS PLC": {"source": "Morrisons Annual Report 2024", "years": [
+        {"year": 2024, "turnover": 18_978_000_000},
+    ]},
+    "LIDL GREAT BRITAIN LIMITED": {"source": "Lidl GB Accounts 2024/25", "years": [
+        {"year": 2025, "turnover": 11_732_965_000},
+    ]},
+    "ALDI STORES LIMITED": {"source": "Aldi Stores Accounts 2022/23", "years": [
+        {"year": 2023, "turnover": 15_521_000_000},
+    ]},
+    "MARKS AND SPENCER PLC": {"source": "M&S Annual Report 2024", "years": [
+        {"year": 2024, "turnover": 13_041_000_000},
+    ]},
+    "WAITROSE LIMITED": {"source": "John Lewis Partnership Annual Report 2024", "years": [
+        {"year": 2024, "turnover": 7_776_000_000},
+    ]},
+    "ICELAND FOODS LIMITED": {"source": "Iceland Foods Accounts 2023/24", "years": [
+        {"year": 2024, "turnover": 3_445_000_000},
+    ]},
+    "OCADO GROUP PLC": {"source": "Ocado Annual Report 2023", "years": [
+        {"year": 2023, "turnover": 2_833_000_000},
+    ]},
+    "CO-OPERATIVE GROUP LIMITED": {"source": "Co-op Group Annual Report 2023", "years": [
+        {"year": 2023, "turnover": 11_907_000_000},
+    ]},
+    "BOOKER LIMITED": {"source": "Tesco Group Annual Report 2024 (Booker wholesale)", "years": [
+        {"year": 2024, "turnover": 7_000_000_000},
+    ]},
+    # ------------------------------------------------------------------ #
+    # UK food & drink manufacturing                                       #
+    # ------------------------------------------------------------------ #
+    "ASSOCIATED BRITISH FOODS PLC": {"source": "ABF Annual Report 2024", "years": [
+        {"year": 2024, "turnover": 19_763_000_000},
+    ]},
+    "PREMIER FOODS PLC": {"source": "Premier Foods Annual Report 2024", "years": [
+        {"year": 2024, "turnover": 1_040_000_000},
+    ]},
+    "GREENCORE GROUP PLC": {"source": "Greencore Annual Report 2023", "years": [
+        {"year": 2023, "turnover": 1_924_000_000},
+    ]},
+    "BAKKAVOR GROUP PLC": {"source": "Bakkavor Annual Report 2023", "years": [
+        {"year": 2023, "turnover": 2_232_000_000},
+    ]},
+    "CRANSWICK PLC": {"source": "Cranswick Annual Report 2024", "years": [
+        {"year": 2024, "turnover": 2_401_000_000},
+    ]},
+    # ------------------------------------------------------------------ #
+    # UK pubs / restaurants                                               #
+    # ------------------------------------------------------------------ #
+    "MITCHELLS & BUTLERS PLC": {"source": "Mitchells & Butlers Annual Report 2023", "years": [
+        {"year": 2023, "turnover": 2_937_000_000},
+    ]},
+    "WETHERSPOON (J D) PLC": {"source": "JD Wetherspoon Annual Report 2024", "years": [
+        {"year": 2024, "turnover": 1_915_000_000},
+    ]},
+    "WHITBREAD PLC": {"source": "Whitbread Annual Report 2024", "years": [
+        {"year": 2024, "turnover": 2_970_000_000},
+    ]},
+    "WAGAMAMA LIMITED": {"source": "The Restaurant Group Annual Report 2023", "years": [
+        {"year": 2023, "turnover": 450_000_000},
+    ]},
+    # ------------------------------------------------------------------ #
+    # UK car manufacturers — verified from Companies House accounts       #
+    # ------------------------------------------------------------------ #
+    "JAGUAR LAND ROVER LIMITED": {
+        "source": "JLR Annual Reports (Companies House)",
+        "years": [
+            {"year": 2021, "turnover": 16_473_000_000, "net_profit": -1_755_000_000},
+            {"year": 2022, "turnover": 15_158_000_000, "net_profit": -1_282_000_000},
+            {"year": 2023, "turnover": 20_212_000_000, "net_profit":   -486_000_000},
+            {"year": 2024, "turnover": 25_726_000_000, "net_profit":  2_331_000_000},
+            {"year": 2025, "turnover": 25_238_000_000, "net_profit":  1_259_000_000},
+        ],
+    },
+    "VAUXHALL MOTORS LIMITED": {
+        "source": "Vauxhall Motors Ltd Annual Accounts (Companies House)",
+        "years": [
+            {"year": 2023, "turnover": 2_638_800_000, "operating_profit": 61_500_000},
+            {"year": 2024, "turnover": 2_126_300_000, "operating_profit": 59_400_000},
+        ],
+    },
+    "BENTLEY MOTORS LIMITED": {"source": "Bentley Motors Accounts 2022", "years": [
+        {"year": 2022, "turnover": 2_870_000_000},
+    ]},
+    "ASTON MARTIN LAGONDA LIMITED": {"source": "Aston Martin Annual Report 2023", "years": [
+        {"year": 2023, "turnover": 1_636_000_000},
+    ]},
+    "MCLAREN AUTOMOTIVE LIMITED": {"source": "McLaren Automotive Accounts 2022", "years": [
+        {"year": 2022, "turnover": 600_000_000},
+    ]},
+    # ------------------------------------------------------------------ #
+    # UK car distributors / importers — estimated pending CH verification #
+    # ------------------------------------------------------------------ #
+    "MERCEDES-BENZ CARS UK LIMITED": {"source": "Mercedes-Benz Cars UK Accounts 2023 (est.)", "years": [
+        {"year": 2023, "turnover": 14_800_000_000},
+    ]},
+    "BMW (UK) LIMITED": {"source": "BMW UK Accounts 2023 (est.)", "years": [
+        {"year": 2023, "turnover": 10_800_000_000},
+    ]},
+    "VOLKSWAGEN GROUP UNITED KINGDOM LIMITED": {"source": "VW Group UK Accounts 2023 (est.)", "years": [
+        {"year": 2023, "turnover": 12_400_000_000},
+    ]},
+    "FORD MOTOR COMPANY LIMITED": {"source": "Ford Motor Co UK Accounts 2023 (est.)", "years": [
+        {"year": 2023, "turnover": 13_200_000_000},
+    ]},
+    "TOYOTA (GB) PLC": {"source": "Toyota GB Accounts 2023 (est.)", "years": [
+        {"year": 2023, "turnover": 4_800_000_000},
+    ]},
+    "KIA (UK) LIMITED": {"source": "Kia UK Accounts 2023 (est.)", "years": [
+        {"year": 2023, "turnover": 3_100_000_000},
+    ]},
+    "HYUNDAI MOTOR UK LIMITED": {"source": "Hyundai Motor UK Accounts 2023 (est.)", "years": [
+        {"year": 2023, "turnover": 2_900_000_000},
+    ]},
+    # ------------------------------------------------------------------ #
+    # UK software / SaaS                                                  #
+    # ------------------------------------------------------------------ #
+    "SAGE GROUP PLC": {"source": "Sage Annual Report 2024", "years": [
+        {"year": 2024, "turnover": 2_237_000_000},
+    ]},
+    "KAINOS GROUP PLC": {"source": "Kainos Annual Report 2024", "years": [
+        {"year": 2024, "turnover": 382_000_000},
+    ]},
+    # ------------------------------------------------------------------ #
+    # UK financial services                                               #
+    # ------------------------------------------------------------------ #
+    "REVOLUT LIMITED": {"source": "Revolut Annual Report 2023", "years": [
+        {"year": 2023, "turnover": 2_200_000_000},
+    ]},
+    "MONZO BANK LIMITED": {"source": "Monzo Annual Report 2024", "years": [
+        {"year": 2024, "turnover": 880_000_000},
+    ]},
+    "STARLING BANK LIMITED": {"source": "Starling Annual Report 2023", "years": [
+        {"year": 2023, "turnover": 682_000_000},
+    ]},
 }
 
 # Words that look like proper nouns but are not company names
@@ -1821,28 +1929,51 @@ def collect_financials(competitors: list, registry_mode: dict) -> list:
         if data_quality in ("UNKNOWN", "INFERRED"):
             seed_entry = SEED_REVENUES.get(name.upper())
             if seed_entry:
-                seed_rev, seed_year, seed_label = seed_entry
-                log(f"      [SeedRevenue] {seed_label}: £{seed_rev/1e9:.1f}bn")
+                seed_label = seed_entry["source"]
+                seed_years = sorted(seed_entry["years"], key=lambda x: x["year"])
+                seed_rev   = seed_years[-1]["turnover"]   # most recent for log
+                log(f"      [SeedRevenue] {seed_label}: £{seed_rev/1e9:.1f}bn "
+                    f"({len(seed_years)} year(s))")
+
+                def _make_seed_snap(yr_dict: dict) -> dict:
+                    return {
+                        "year":               yr_dict["year"],
+                        "turnover":           yr_dict.get("turnover"),
+                        "operating_profit":   yr_dict.get("operating_profit"),
+                        "net_profit":         yr_dict.get("net_profit"),
+                        "total_assets":       None, "net_assets":         None,
+                        "employees":          yr_dict.get("employees"),
+                        "trade_debtors":      None, "trade_creditors":    None,
+                        "staff_costs":        None, "deferred_income":    None,
+                        "fixed_assets":       None, "director_emoluments": None,
+                        "abbreviated": False,
+                        "filing_date": str(yr_dict["year"]),
+                        "source_url":  "",
+                    }
+
                 if data_quality == "INFERRED" and financials:
-                    for fin in financials:
-                        if fin.get("turnover") is None:
-                            fin["turnover"] = seed_rev
+                    # Patch existing CH balance-sheet rows with seed P&L figures
+                    # and append any extra seed years not in the CH data.
+                    existing_years = {f["year"] for f in financials}
+                    for yr_dict in seed_years:
+                        yr = yr_dict["year"]
+                        if yr in existing_years:
+                            for fin in financials:
+                                if fin["year"] == yr:
+                                    if fin.get("turnover") is None:
+                                        fin["turnover"] = yr_dict.get("turnover")
+                                    if fin.get("operating_profit") is None:
+                                        fin["operating_profit"] = yr_dict.get("operating_profit")
+                                    if fin.get("net_profit") is None:
+                                        fin["net_profit"] = yr_dict.get("net_profit")
+                        else:
+                            financials.append(_make_seed_snap(yr_dict))
+                    financials.sort(key=lambda x: x["year"])
                     data_quality = "VERIFIED"
                     data_source = f"Companies House (balance sheet) + {seed_label}"
                     data_source_url = comp.get("website") or ""
                 else:
-                    financials = [{
-                        "year": seed_year,
-                        "turnover": seed_rev,
-                        "operating_profit": None, "net_profit": None,
-                        "total_assets": None, "net_assets": None,
-                        "employees": None, "trade_debtors": None,
-                        "trade_creditors": None, "staff_costs": None,
-                        "deferred_income": None, "fixed_assets": None,
-                        "director_emoluments": None, "abbreviated": False,
-                        "filing_date": str(seed_year),
-                        "source_url": "",
-                    }]
+                    financials = [_make_seed_snap(y) for y in seed_years]
                     data_quality = "VERIFIED"
                     data_source = seed_label
                     data_source_url = comp.get("website") or ""
