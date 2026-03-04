@@ -10,12 +10,14 @@ Usage:
 """
 
 import argparse
+import io
 import json
 import os
 import re
 import sys
 import time
 import traceback
+import zipfile
 from datetime import datetime
 from urllib.parse import urlencode, urljoin, urlparse
 
@@ -573,7 +575,8 @@ def ch_get_financials(company_number: str) -> list:
                     xbrl_mimes = [m for m in resources
                                   if any(t in m for t in
                                          ("xhtml", "xml", "xbrl", "html"))]
-                    if not xbrl_mimes:
+                    zip_mimes = [m for m in resources if "zip" in m]
+                    if not xbrl_mimes and not zip_mimes:
                         log(f"      No XBRL resource in doc metadata "
                             f"(MIME types: {list(resources.keys())})")
                     for mime in xbrl_mimes:
@@ -585,6 +588,33 @@ def ch_get_financials(company_number: str) -> list:
                                 _parse_xbrl_into_snap(xbrl_resp.text, snap)
                                 if snap["turnover"] is not None:
                                     break  # found what we need
+                    # Many large UK PLC accounts are delivered as a ZIP
+                    # containing one or more iXBRL HTML files.
+                    if snap["turnover"] is None:
+                        for mime in zip_mimes:
+                            meta = resources[mime]
+                            doc_dl = meta.get("links", {}).get("download", "")
+                            if not doc_dl:
+                                continue
+                            zip_resp = fetch_url(doc_dl, auth=_ch_auth())
+                            if not zip_resp or zip_resp.status_code != 200:
+                                continue
+                            try:
+                                with zipfile.ZipFile(io.BytesIO(zip_resp.content)) as zf:
+                                    for zname in zf.namelist():
+                                        if any(zname.lower().endswith(ext)
+                                               for ext in (".html", ".xhtml", ".xml")):
+                                            with zf.open(zname) as zentry:
+                                                _parse_xbrl_into_snap(
+                                                    zentry.read().decode("utf-8", errors="replace"),
+                                                    snap)
+                                            if snap["turnover"] is not None:
+                                                log(f"      iXBRL found in ZIP ({zname})")
+                                                break
+                            except Exception as ze:
+                                log(f"      ZIP parse error: {ze}")
+                            if snap["turnover"] is not None:
+                                break
                 except Exception as xe:
                     log(f"      XBRL parse error: {xe}")
 
@@ -1688,6 +1718,8 @@ def _get_wikipedia_revenue(trading_name: str) -> tuple:
     """
     WP_API = "https://en.wikipedia.org/w/api.php"
 
+    log(f"      [Wikipedia] searching for: {trading_name}")
+
     # --- Step 1: find the article ---
     search_resp = fetch_url(WP_API, params={
         "action": "query", "list": "search",
@@ -1695,10 +1727,12 @@ def _get_wikipedia_revenue(trading_name: str) -> tuple:
         "srlimit": 5, "format": "json",
     })
     if not search_resp or search_resp.status_code != 200:
+        log(f"      [Wikipedia] search failed (status {search_resp.status_code if search_resp else 'none'})")
         return None, ""
     try:
         hits = search_resp.json().get("query", {}).get("search", [])
         if not hits:
+            log(f"      [Wikipedia] no search hits for '{trading_name}'")
             return None, ""
         # Pick the hit whose title most closely matches the trading name
         tl = trading_name.lower()
@@ -1707,7 +1741,9 @@ def _get_wikipedia_revenue(trading_name: str) -> tuple:
              if any(w in h["title"].lower() for w in tl.split())),
             hits[0]["title"]
         )
-    except Exception:
+        log(f"      [Wikipedia] article: '{title}'")
+    except Exception as e:
+        log(f"      [Wikipedia] search parse error: {e}")
         return None, ""
 
     wiki_url = f"https://en.wikipedia.org/wiki/{title.replace(' ', '_')}"
@@ -1719,6 +1755,7 @@ def _get_wikipedia_revenue(trading_name: str) -> tuple:
         "rvslots": "main", "format": "json",
     })
     if not content_resp or content_resp.status_code != 200:
+        log(f"      [Wikipedia] wikitext fetch failed")
         return None, ""
     try:
         pages = content_resp.json().get("query", {}).get("pages", {})
@@ -1730,16 +1767,22 @@ def _get_wikipedia_revenue(trading_name: str) -> tuple:
             wikitext = (revs[0].get("slots", {}).get("main", {}).get("*", "")
                         or revs[0].get("*", ""))
             if not wikitext:
+                log(f"      [Wikipedia] empty wikitext for '{title}'")
                 continue
             # Extract |revenue = ... from infobox
             m = re.search(r'\|\s*revenue\s*=\s*([^\n|]+)', wikitext, re.IGNORECASE)
-            if m:
-                raw = m.group(1).strip()
-                val = _extract_revenue_value(raw)
-                if val:
-                    return val, wiki_url
-    except Exception:
-        pass
+            if not m:
+                log(f"      [Wikipedia] no revenue field in infobox for '{title}'")
+                return None, ""
+            raw = m.group(1).strip()
+            log(f"      [Wikipedia] raw revenue field: {raw!r}")
+            val = _extract_revenue_value(raw)
+            if val:
+                log(f"      [Wikipedia] revenue = £{val:,.0f}")
+                return val, wiki_url
+            log(f"      [Wikipedia] could not parse revenue value from: {raw!r}")
+    except Exception as e:
+        log(f"      [Wikipedia] wikitext parse error: {e}")
     return None, ""
 
 def _trading_name(company_name: str) -> str:
