@@ -3,3 +3,5 @@ __pycache__/
 *.pyo
 market_data_*.json
 market_sizing_*.html
+# PDF accounts — local only, not committed to repo
+seed_accounts/*.pdf
