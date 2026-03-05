@@ -1094,6 +1094,9 @@ SECTOR_SEEDS: dict = {
         "LOTUS CARS LIMITED",
         "VAUXHALL MOTORS LIMITED",
         "TOYOTA MANUFACTURING (UK) LIMITED",
+        "MERCEDES-BENZ CARS UK LIMITED",
+        "BMW (UK) LIMITED",
+        "FORD MOTOR COMPANY LIMITED",
     ],
     # UK car distributors / importers (SIC 451xx)
     ("uk", "451"): [
@@ -1216,8 +1219,17 @@ SEED_REVENUES: dict = {
             {"year": 2024, "turnover": 2_126_300_000, "operating_profit": 59_400_000},
         ],
     },
-    "BENTLEY MOTORS LIMITED": {"source": "Bentley Motors Accounts 2022", "years": [
-        {"year": 2022, "turnover": 2_870_000_000},
+    "BENTLEY MOTORS LIMITED": {"source": "Bentley Motors Ltd Annual Accounts (Companies House)", "years": [
+        {"year": 2021, "turnover": 2_392_800_000, "operating_profit": 580_000_000, "net_profit": 440_000_000},
+        {"year": 2022, "turnover": 2_905_600_000, "operating_profit": 785_700_000, "net_profit": 697_000_000},
+        {"year": 2023, "turnover": 2_449_100_000, "operating_profit": 366_300_000, "net_profit": 295_900_000},
+        {"year": 2024, "turnover": 2_199_800_000, "operating_profit": 217_000_000, "net_profit": 160_100_000},
+    ]},
+    "ROLLS-ROYCE MOTOR CARS LIMITED": {"source": "Rolls-Royce Motor Cars Ltd Annual Accounts (Companies House)", "years": [
+        {"year": 2021, "turnover": 769_144_000, "operating_profit": 98_120_000, "net_profit": 77_106_000},
+        {"year": 2022, "turnover": 887_845_000, "operating_profit": 120_482_000, "net_profit": 97_027_000},
+        {"year": 2023, "turnover": 984_228_000, "operating_profit": 122_948_000, "net_profit": 97_173_000},
+        {"year": 2024, "turnover": 978_905_000, "operating_profit": 126_862_000, "net_profit": 99_559_000},
     ]},
     "ASTON MARTIN LAGONDA LIMITED": {"source": "Aston Martin Annual Report 2023", "years": [
         {"year": 2023, "turnover": 1_636_000_000},
