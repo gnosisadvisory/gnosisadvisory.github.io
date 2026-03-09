@@ -1094,13 +1094,13 @@ SECTOR_SEEDS: dict = {
         "LOTUS CARS LIMITED",
         "VAUXHALL MOTORS LIMITED",
         "TOYOTA MANUFACTURING (UK) LIMITED",
-        "MERCEDES-BENZ CARS UK LIMITED",
+        "MERCEDES-BENZ UK LIMITED",
         "BMW (UK) LIMITED",
         "FORD MOTOR COMPANY LIMITED",
     ],
     # UK car distributors / importers (SIC 451xx)
     ("uk", "451"): [
-        "MERCEDES-BENZ CARS UK LIMITED",
+        "MERCEDES-BENZ UK LIMITED",
         "BMW (UK) LIMITED",
         "VOLKSWAGEN GROUP UNITED KINGDOM LIMITED",
         "FORD MOTOR COMPANY LIMITED",
@@ -1238,20 +1238,39 @@ SEED_REVENUES: dict = {
         {"year": 2022, "turnover": 600_000_000},
     ]},
     # ------------------------------------------------------------------ #
-    # UK car distributors / importers — estimated pending CH verification #
+    # UK car distributors / importers — VERIFIED from Companies House    #
+    # PDF accounts read directly (pypdfium2). All figures in GBP.        #
     # ------------------------------------------------------------------ #
-    "MERCEDES-BENZ CARS UK LIMITED": {"source": "Mercedes-Benz Cars UK Accounts 2023 (est.)", "years": [
-        {"year": 2023, "turnover": 14_800_000_000},
-    ]},
-    "BMW (UK) LIMITED": {"source": "BMW UK Accounts 2023 (est.)", "years": [
-        {"year": 2023, "turnover": 10_800_000_000},
-    ]},
+    "MERCEDES-BENZ UK LIMITED": {
+        "source": "Mercedes-Benz UK Ltd Annual Accounts (Companies House, Co. No. 02448457)",
+        "years": [
+            {"year": 2021, "turnover": 3_241_653_000, "operating_profit":  61_469_000, "net_profit":  53_211_000},
+            {"year": 2022, "turnover": 3_291_383_000, "operating_profit":  43_907_000, "net_profit":  34_119_000},
+            {"year": 2023, "turnover": 4_488_822_000, "operating_profit":  90_820_000, "net_profit":  44_525_000},
+            {"year": 2024, "turnover": 4_838_754_000, "operating_profit": 129_031_000, "net_profit":  73_955_000},
+        ],
+    },
+    "BMW (UK) LIMITED": {
+        "source": "BMW (UK) Ltd Annual Accounts (Companies House, Co. No. 01378137)",
+        "years": [
+            {"year": 2021, "turnover": 4_682_659_000, "operating_profit":  93_467_000, "net_profit":  44_291_000},
+            {"year": 2022, "turnover": 5_387_398_000, "operating_profit":  77_717_000, "net_profit": -40_299_000},
+            {"year": 2023, "turnover": 5_506_990_000, "operating_profit":  98_482_000, "net_profit":  75_803_000},
+            {"year": 2024, "turnover": 5_844_031_000, "operating_profit": 142_098_000, "net_profit":  83_365_000},
+        ],
+    },
     "VOLKSWAGEN GROUP UNITED KINGDOM LIMITED": {"source": "VW Group UK Accounts 2023 (est.)", "years": [
         {"year": 2023, "turnover": 12_400_000_000},
     ]},
-    "FORD MOTOR COMPANY LIMITED": {"source": "Ford Motor Co UK Accounts 2023 (est.)", "years": [
-        {"year": 2023, "turnover": 13_200_000_000},
-    ]},
+    "FORD MOTOR COMPANY LIMITED": {
+        "source": "Ford Motor Company Ltd Annual Accounts (Companies House, Co. No. 00235447)",
+        "years": [
+            {"year": 2021, "turnover":  9_303_000_000, "operating_profit": None, "net_profit":  203_000_000},
+            {"year": 2022, "turnover": 12_029_000_000, "operating_profit": None, "net_profit":  170_000_000},
+            {"year": 2023, "turnover": 13_318_000_000, "operating_profit": None, "net_profit":  245_000_000},
+            {"year": 2024, "turnover": 15_593_000_000, "operating_profit": None, "net_profit":  131_000_000},
+        ],
+    },
     "TOYOTA (GB) PLC": {"source": "Toyota GB Accounts 2023 (est.)", "years": [
         {"year": 2023, "turnover": 4_800_000_000},
     ]},
