@@ -1,0 +1,1222 @@
+{
+  "company": "Tesco",
+  "country": "UK",
+  "description": "UK grocery retail",
+  "sic_code": "471",
+  "analysis_date": "2026-03-09T10:10:25.343617",
+  "registry_mode": {
+    "mode": "A",
+    "country_code": "GB",
+    "language": "English",
+    "description": "UK \u2014 Companies House API"
+  },
+  "competitors": [
+    {
+      "name": "J SAINSBURY PLC",
+      "website": null,
+      "registry_number": null,
+      "discovery_method": "A_seed",
+      "description": "Known major sector player (seeded)",
+      "country": "UK",
+      "raw_data": {},
+      "tier": "DIRECT",
+      "classification_rationale": "All companies included",
+      "financials": [
+        {
+          "year": 2024,
+          "turnover": 31739000000,
+          "operating_profit": null,
+          "net_profit": null,
+          "total_assets": null,
+          "net_assets": null,
+          "employees": null,
+          "trade_debtors": null,
+          "trade_creditors": null,
+          "staff_costs": null,
+          "deferred_income": null,
+          "fixed_assets": null,
+          "director_emoluments": null,
+          "abbreviated": false,
+          "filing_date": "2024",
+          "source_url": ""
+        }
+      ],
+      "data_quality": "VERIFIED",
+      "data_source": "Sainsbury's Annual Report 2024",
+      "data_source_url": "",
+      "last_updated": "2026-03-09",
+      "trends": null
+    },
+    {
+      "name": "ASDA STORES LIMITED",
+      "website": null,
+      "registry_number": null,
+      "discovery_method": "A_seed",
+      "description": "Known major sector player (seeded)",
+      "country": "UK",
+      "raw_data": {},
+      "tier": "DIRECT",
+      "classification_rationale": "All companies included",
+      "financials": [
+        {
+          "year": 2023,
+          "turnover": 22245000000,
+          "operating_profit": null,
+          "net_profit": null,
+          "total_assets": null,
+          "net_assets": null,
+          "employees": null,
+          "trade_debtors": null,
+          "trade_creditors": null,
+          "staff_costs": null,
+          "deferred_income": null,
+          "fixed_assets": null,
+          "director_emoluments": null,
+          "abbreviated": false,
+          "filing_date": "2023",
+          "source_url": ""
+        }
+      ],
+      "data_quality": "VERIFIED",
+      "data_source": "Asda Annual Report 2023",
+      "data_source_url": "",
+      "last_updated": "2026-03-09",
+      "trends": null
+    },
+    {
+      "name": "WM MORRISON SUPERMARKETS PLC",
+      "website": null,
+      "registry_number": null,
+      "discovery_method": "A_seed",
+      "description": "Known major sector player (seeded)",
+      "country": "UK",
+      "raw_data": {},
+      "tier": "DIRECT",
+      "classification_rationale": "All companies included",
+      "financials": [
+        {
+          "year": 2024,
+          "turnover": 18978000000,
+          "operating_profit": null,
+          "net_profit": null,
+          "total_assets": null,
+          "net_assets": null,
+          "employees": null,
+          "trade_debtors": null,
+          "trade_creditors": null,
+          "staff_costs": null,
+          "deferred_income": null,
+          "fixed_assets": null,
+          "director_emoluments": null,
+          "abbreviated": false,
+          "filing_date": "2024",
+          "source_url": ""
+        }
+      ],
+      "data_quality": "VERIFIED",
+      "data_source": "Morrisons Annual Report 2024",
+      "data_source_url": "",
+      "last_updated": "2026-03-09",
+      "trends": null
+    },
+    {
+      "name": "LIDL GREAT BRITAIN LIMITED",
+      "website": null,
+      "registry_number": null,
+      "discovery_method": "A_seed",
+      "description": "Known major sector player (seeded)",
+      "country": "UK",
+      "raw_data": {},
+      "tier": "DIRECT",
+      "classification_rationale": "All companies included",
+      "financials": [
+        {
+          "year": 2025,
+          "turnover": 11732965000,
+          "operating_profit": null,
+          "net_profit": null,
+          "total_assets": null,
+          "net_assets": null,
+          "employees": null,
+          "trade_debtors": null,
+          "trade_creditors": null,
+          "staff_costs": null,
+          "deferred_income": null,
+          "fixed_assets": null,
+          "director_emoluments": null,
+          "abbreviated": false,
+          "filing_date": "2025",
+          "source_url": ""
+        }
+      ],
+      "data_quality": "VERIFIED",
+      "data_source": "Lidl GB Accounts 2024/25",
+      "data_source_url": "",
+      "last_updated": "2026-03-09",
+      "trends": null
+    },
+    {
+      "name": "ALDI STORES LIMITED",
+      "website": null,
+      "registry_number": null,
+      "discovery_method": "A_seed",
+      "description": "Known major sector player (seeded)",
+      "country": "UK",
+      "raw_data": {},
+      "tier": "DIRECT",
+      "classification_rationale": "All companies included",
+      "financials": [
+        {
+          "year": 2023,
+          "turnover": 15521000000,
+          "operating_profit": null,
+          "net_profit": null,
+          "total_assets": null,
+          "net_assets": null,
+          "employees": null,
+          "trade_debtors": null,
+          "trade_creditors": null,
+          "staff_costs": null,
+          "deferred_income": null,
+          "fixed_assets": null,
+          "director_emoluments": null,
+          "abbreviated": false,
+          "filing_date": "2023",
+          "source_url": ""
+        }
+      ],
+      "data_quality": "VERIFIED",
+      "data_source": "Aldi Stores Accounts 2022/23",
+      "data_source_url": "",
+      "last_updated": "2026-03-09",
+      "trends": null
+    },
+    {
+      "name": "MARKS AND SPENCER PLC",
+      "website": null,
+      "registry_number": null,
+      "discovery_method": "A_seed",
+      "description": "Known major sector player (seeded)",
+      "country": "UK",
+      "raw_data": {},
+      "tier": "DIRECT",
+      "classification_rationale": "All companies included",
+      "financials": [
+        {
+          "year": 2024,
+          "turnover": 13041000000,
+          "operating_profit": null,
+          "net_profit": null,
+          "total_assets": null,
+          "net_assets": null,
+          "employees": null,
+          "trade_debtors": null,
+          "trade_creditors": null,
+          "staff_costs": null,
+          "deferred_income": null,
+          "fixed_assets": null,
+          "director_emoluments": null,
+          "abbreviated": false,
+          "filing_date": "2024",
+          "source_url": ""
+        }
+      ],
+      "data_quality": "VERIFIED",
+      "data_source": "M&S Annual Report 2024",
+      "data_source_url": "",
+      "last_updated": "2026-03-09",
+      "trends": null
+    },
+    {
+      "name": "WAITROSE LIMITED",
+      "website": null,
+      "registry_number": null,
+      "discovery_method": "A_seed",
+      "description": "Known major sector player (seeded)",
+      "country": "UK",
+      "raw_data": {},
+      "tier": "DIRECT",
+      "classification_rationale": "All companies included",
+      "financials": [
+        {
+          "year": 2024,
+          "turnover": 7776000000,
+          "operating_profit": null,
+          "net_profit": null,
+          "total_assets": null,
+          "net_assets": null,
+          "employees": null,
+          "trade_debtors": null,
+          "trade_creditors": null,
+          "staff_costs": null,
+          "deferred_income": null,
+          "fixed_assets": null,
+          "director_emoluments": null,
+          "abbreviated": false,
+          "filing_date": "2024",
+          "source_url": ""
+        }
+      ],
+      "data_quality": "VERIFIED",
+      "data_source": "John Lewis Partnership Annual Report 2024",
+      "data_source_url": "",
+      "last_updated": "2026-03-09",
+      "trends": null
+    },
+    {
+      "name": "ICELAND FOODS LIMITED",
+      "website": null,
+      "registry_number": null,
+      "discovery_method": "A_seed",
+      "description": "Known major sector player (seeded)",
+      "country": "UK",
+      "raw_data": {},
+      "tier": "DIRECT",
+      "classification_rationale": "All companies included",
+      "financials": [
+        {
+          "year": 2024,
+          "turnover": 3445000000,
+          "operating_profit": null,
+          "net_profit": null,
+          "total_assets": null,
+          "net_assets": null,
+          "employees": null,
+          "trade_debtors": null,
+          "trade_creditors": null,
+          "staff_costs": null,
+          "deferred_income": null,
+          "fixed_assets": null,
+          "director_emoluments": null,
+          "abbreviated": false,
+          "filing_date": "2024",
+          "source_url": ""
+        }
+      ],
+      "data_quality": "VERIFIED",
+      "data_source": "Iceland Foods Accounts 2023/24",
+      "data_source_url": "",
+      "last_updated": "2026-03-09",
+      "trends": null
+    },
+    {
+      "name": "OCADO GROUP PLC",
+      "website": null,
+      "registry_number": null,
+      "discovery_method": "A_seed",
+      "description": "Known major sector player (seeded)",
+      "country": "UK",
+      "raw_data": {},
+      "tier": "DIRECT",
+      "classification_rationale": "All companies included",
+      "financials": [
+        {
+          "year": 2023,
+          "turnover": 2833000000,
+          "operating_profit": null,
+          "net_profit": null,
+          "total_assets": null,
+          "net_assets": null,
+          "employees": null,
+          "trade_debtors": null,
+          "trade_creditors": null,
+          "staff_costs": null,
+          "deferred_income": null,
+          "fixed_assets": null,
+          "director_emoluments": null,
+          "abbreviated": false,
+          "filing_date": "2023",
+          "source_url": ""
+        }
+      ],
+      "data_quality": "VERIFIED",
+      "data_source": "Ocado Annual Report 2023",
+      "data_source_url": "",
+      "last_updated": "2026-03-09",
+      "trends": null
+    },
+    {
+      "name": "CO-OPERATIVE GROUP LIMITED",
+      "website": null,
+      "registry_number": null,
+      "discovery_method": "A_seed",
+      "description": "Known major sector player (seeded)",
+      "country": "UK",
+      "raw_data": {},
+      "tier": "DIRECT",
+      "classification_rationale": "All companies included",
+      "financials": [
+        {
+          "year": 2023,
+          "turnover": 11907000000,
+          "operating_profit": null,
+          "net_profit": null,
+          "total_assets": null,
+          "net_assets": null,
+          "employees": null,
+          "trade_debtors": null,
+          "trade_creditors": null,
+          "staff_costs": null,
+          "deferred_income": null,
+          "fixed_assets": null,
+          "director_emoluments": null,
+          "abbreviated": false,
+          "filing_date": "2023",
+          "source_url": ""
+        }
+      ],
+      "data_quality": "VERIFIED",
+      "data_source": "Co-op Group Annual Report 2023",
+      "data_source_url": "",
+      "last_updated": "2026-03-09",
+      "trends": null
+    },
+    {
+      "name": "BOOKER LIMITED",
+      "website": null,
+      "registry_number": null,
+      "discovery_method": "A_seed",
+      "description": "Known major sector player (seeded)",
+      "country": "UK",
+      "raw_data": {},
+      "tier": "DIRECT",
+      "classification_rationale": "All companies included",
+      "financials": [
+        {
+          "year": 2024,
+          "turnover": 7000000000,
+          "operating_profit": null,
+          "net_profit": null,
+          "total_assets": null,
+          "net_assets": null,
+          "employees": null,
+          "trade_debtors": null,
+          "trade_creditors": null,
+          "staff_costs": null,
+          "deferred_income": null,
+          "fixed_assets": null,
+          "director_emoluments": null,
+          "abbreviated": false,
+          "filing_date": "2024",
+          "source_url": ""
+        }
+      ],
+      "data_quality": "VERIFIED",
+      "data_source": "Tesco Group Annual Report 2024 (Booker wholesale)",
+      "data_source_url": "",
+      "last_updated": "2026-03-09",
+      "trends": null
+    }
+  ],
+  "discovery_meta": {
+    "methods_run": [
+      "A_registry",
+      "B_web_search"
+    ],
+    "counts_by_method": {
+      "A_registry": 0,
+      "A_seed": 11,
+      "B_web_search": 0
+    },
+    "warning": null
+  },
+  "market_sizing": {
+    "top_down": {
+      "estimate": 243696608333.33334,
+      "unit": "GBP",
+      "source": "Constructed proxy: sum of identified players \u00f7 60% coverage assumption",
+      "source_url": null,
+      "year": 2025,
+      "confidence": "LOW",
+      "notes": "No published market size found. Proxy constructed from 11 companies with known revenue data (total \u00a3146218.0m \u00f7 60% assumed coverage = \u00a3243696.6m). Treat as directional only."
+    },
+    "bottom_up": {
+      "matrix": {
+        "direct_only": {
+          "conservative": {
+            "companies_included": 11,
+            "companies_with_revenue": 11,
+            "total_identified_revenue": 146217965000,
+            "coverage_assumption": 0.8,
+            "market_estimate": 182772456250.0,
+            "revenue_breakdown": [
+              {
+                "company": "J SAINSBURY PLC",
+                "revenue": 31739000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "ASDA STORES LIMITED",
+                "revenue": 22245000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "WM MORRISON SUPERMARKETS PLC",
+                "revenue": 18978000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "LIDL GREAT BRITAIN LIMITED",
+                "revenue": 11732965000,
+                "source": "Verified (2025)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "ALDI STORES LIMITED",
+                "revenue": 15521000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "MARKS AND SPENCER PLC",
+                "revenue": 13041000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "WAITROSE LIMITED",
+                "revenue": 7776000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "ICELAND FOODS LIMITED",
+                "revenue": 3445000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "OCADO GROUP PLC",
+                "revenue": 2833000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "CO-OPERATIVE GROUP LIMITED",
+                "revenue": 11907000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "BOOKER LIMITED",
+                "revenue": 7000000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              }
+            ],
+            "maths": "\u00a3146218.0m identified revenue \u00f7 80% coverage = \u00a3182772.5m",
+            "footnote": "Sum of 11 companies with revenue data from 11 direct only competitors, assuming they represent 80% of the market."
+          },
+          "base": {
+            "companies_included": 11,
+            "companies_with_revenue": 11,
+            "total_identified_revenue": 146217965000,
+            "coverage_assumption": 0.6,
+            "market_estimate": 243696608333.33334,
+            "revenue_breakdown": [
+              {
+                "company": "J SAINSBURY PLC",
+                "revenue": 31739000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "ASDA STORES LIMITED",
+                "revenue": 22245000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "WM MORRISON SUPERMARKETS PLC",
+                "revenue": 18978000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "LIDL GREAT BRITAIN LIMITED",
+                "revenue": 11732965000,
+                "source": "Verified (2025)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "ALDI STORES LIMITED",
+                "revenue": 15521000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "MARKS AND SPENCER PLC",
+                "revenue": 13041000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "WAITROSE LIMITED",
+                "revenue": 7776000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "ICELAND FOODS LIMITED",
+                "revenue": 3445000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "OCADO GROUP PLC",
+                "revenue": 2833000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "CO-OPERATIVE GROUP LIMITED",
+                "revenue": 11907000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "BOOKER LIMITED",
+                "revenue": 7000000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              }
+            ],
+            "maths": "\u00a3146218.0m identified revenue \u00f7 60% coverage = \u00a3243696.6m",
+            "footnote": "Sum of 11 companies with revenue data from 11 direct only competitors, assuming they represent 60% of the market."
+          },
+          "aggressive": {
+            "companies_included": 11,
+            "companies_with_revenue": 11,
+            "total_identified_revenue": 146217965000,
+            "coverage_assumption": 0.4,
+            "market_estimate": 365544912500.0,
+            "revenue_breakdown": [
+              {
+                "company": "J SAINSBURY PLC",
+                "revenue": 31739000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "ASDA STORES LIMITED",
+                "revenue": 22245000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "WM MORRISON SUPERMARKETS PLC",
+                "revenue": 18978000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "LIDL GREAT BRITAIN LIMITED",
+                "revenue": 11732965000,
+                "source": "Verified (2025)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "ALDI STORES LIMITED",
+                "revenue": 15521000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "MARKS AND SPENCER PLC",
+                "revenue": 13041000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "WAITROSE LIMITED",
+                "revenue": 7776000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "ICELAND FOODS LIMITED",
+                "revenue": 3445000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "OCADO GROUP PLC",
+                "revenue": 2833000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "CO-OPERATIVE GROUP LIMITED",
+                "revenue": 11907000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "BOOKER LIMITED",
+                "revenue": 7000000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              }
+            ],
+            "maths": "\u00a3146218.0m identified revenue \u00f7 40% coverage = \u00a3365544.9m",
+            "footnote": "Sum of 11 companies with revenue data from 11 direct only competitors, assuming they represent 40% of the market."
+          }
+        },
+        "direct_and_second_tier": {
+          "conservative": {
+            "companies_included": 11,
+            "companies_with_revenue": 11,
+            "total_identified_revenue": 146217965000,
+            "coverage_assumption": 0.8,
+            "market_estimate": 182772456250.0,
+            "revenue_breakdown": [
+              {
+                "company": "J SAINSBURY PLC",
+                "revenue": 31739000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "ASDA STORES LIMITED",
+                "revenue": 22245000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "WM MORRISON SUPERMARKETS PLC",
+                "revenue": 18978000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "LIDL GREAT BRITAIN LIMITED",
+                "revenue": 11732965000,
+                "source": "Verified (2025)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "ALDI STORES LIMITED",
+                "revenue": 15521000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "MARKS AND SPENCER PLC",
+                "revenue": 13041000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "WAITROSE LIMITED",
+                "revenue": 7776000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "ICELAND FOODS LIMITED",
+                "revenue": 3445000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "OCADO GROUP PLC",
+                "revenue": 2833000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "CO-OPERATIVE GROUP LIMITED",
+                "revenue": 11907000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "BOOKER LIMITED",
+                "revenue": 7000000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              }
+            ],
+            "maths": "\u00a3146218.0m identified revenue \u00f7 80% coverage = \u00a3182772.5m",
+            "footnote": "Sum of 11 companies with revenue data from 11 direct and second tier competitors, assuming they represent 80% of the market."
+          },
+          "base": {
+            "companies_included": 11,
+            "companies_with_revenue": 11,
+            "total_identified_revenue": 146217965000,
+            "coverage_assumption": 0.6,
+            "market_estimate": 243696608333.33334,
+            "revenue_breakdown": [
+              {
+                "company": "J SAINSBURY PLC",
+                "revenue": 31739000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "ASDA STORES LIMITED",
+                "revenue": 22245000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "WM MORRISON SUPERMARKETS PLC",
+                "revenue": 18978000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "LIDL GREAT BRITAIN LIMITED",
+                "revenue": 11732965000,
+                "source": "Verified (2025)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "ALDI STORES LIMITED",
+                "revenue": 15521000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "MARKS AND SPENCER PLC",
+                "revenue": 13041000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "WAITROSE LIMITED",
+                "revenue": 7776000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "ICELAND FOODS LIMITED",
+                "revenue": 3445000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "OCADO GROUP PLC",
+                "revenue": 2833000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "CO-OPERATIVE GROUP LIMITED",
+                "revenue": 11907000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "BOOKER LIMITED",
+                "revenue": 7000000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              }
+            ],
+            "maths": "\u00a3146218.0m identified revenue \u00f7 60% coverage = \u00a3243696.6m",
+            "footnote": "Sum of 11 companies with revenue data from 11 direct and second tier competitors, assuming they represent 60% of the market."
+          },
+          "aggressive": {
+            "companies_included": 11,
+            "companies_with_revenue": 11,
+            "total_identified_revenue": 146217965000,
+            "coverage_assumption": 0.4,
+            "market_estimate": 365544912500.0,
+            "revenue_breakdown": [
+              {
+                "company": "J SAINSBURY PLC",
+                "revenue": 31739000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "ASDA STORES LIMITED",
+                "revenue": 22245000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "WM MORRISON SUPERMARKETS PLC",
+                "revenue": 18978000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "LIDL GREAT BRITAIN LIMITED",
+                "revenue": 11732965000,
+                "source": "Verified (2025)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "ALDI STORES LIMITED",
+                "revenue": 15521000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "MARKS AND SPENCER PLC",
+                "revenue": 13041000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "WAITROSE LIMITED",
+                "revenue": 7776000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "ICELAND FOODS LIMITED",
+                "revenue": 3445000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "OCADO GROUP PLC",
+                "revenue": 2833000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "CO-OPERATIVE GROUP LIMITED",
+                "revenue": 11907000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "BOOKER LIMITED",
+                "revenue": 7000000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              }
+            ],
+            "maths": "\u00a3146218.0m identified revenue \u00f7 40% coverage = \u00a3365544.9m",
+            "footnote": "Sum of 11 companies with revenue data from 11 direct and second tier competitors, assuming they represent 40% of the market."
+          }
+        },
+        "all": {
+          "conservative": {
+            "companies_included": 11,
+            "companies_with_revenue": 11,
+            "total_identified_revenue": 146217965000,
+            "coverage_assumption": 0.8,
+            "market_estimate": 182772456250.0,
+            "revenue_breakdown": [
+              {
+                "company": "J SAINSBURY PLC",
+                "revenue": 31739000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "ASDA STORES LIMITED",
+                "revenue": 22245000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "WM MORRISON SUPERMARKETS PLC",
+                "revenue": 18978000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "LIDL GREAT BRITAIN LIMITED",
+                "revenue": 11732965000,
+                "source": "Verified (2025)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "ALDI STORES LIMITED",
+                "revenue": 15521000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "MARKS AND SPENCER PLC",
+                "revenue": 13041000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "WAITROSE LIMITED",
+                "revenue": 7776000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "ICELAND FOODS LIMITED",
+                "revenue": 3445000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "OCADO GROUP PLC",
+                "revenue": 2833000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "CO-OPERATIVE GROUP LIMITED",
+                "revenue": 11907000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "BOOKER LIMITED",
+                "revenue": 7000000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              }
+            ],
+            "maths": "\u00a3146218.0m identified revenue \u00f7 80% coverage = \u00a3182772.5m",
+            "footnote": "Sum of 11 companies with revenue data from 11 all competitors, assuming they represent 80% of the market."
+          },
+          "base": {
+            "companies_included": 11,
+            "companies_with_revenue": 11,
+            "total_identified_revenue": 146217965000,
+            "coverage_assumption": 0.6,
+            "market_estimate": 243696608333.33334,
+            "revenue_breakdown": [
+              {
+                "company": "J SAINSBURY PLC",
+                "revenue": 31739000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "ASDA STORES LIMITED",
+                "revenue": 22245000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "WM MORRISON SUPERMARKETS PLC",
+                "revenue": 18978000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "LIDL GREAT BRITAIN LIMITED",
+                "revenue": 11732965000,
+                "source": "Verified (2025)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "ALDI STORES LIMITED",
+                "revenue": 15521000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "MARKS AND SPENCER PLC",
+                "revenue": 13041000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "WAITROSE LIMITED",
+                "revenue": 7776000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "ICELAND FOODS LIMITED",
+                "revenue": 3445000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "OCADO GROUP PLC",
+                "revenue": 2833000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "CO-OPERATIVE GROUP LIMITED",
+                "revenue": 11907000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "BOOKER LIMITED",
+                "revenue": 7000000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              }
+            ],
+            "maths": "\u00a3146218.0m identified revenue \u00f7 60% coverage = \u00a3243696.6m",
+            "footnote": "Sum of 11 companies with revenue data from 11 all competitors, assuming they represent 60% of the market."
+          },
+          "aggressive": {
+            "companies_included": 11,
+            "companies_with_revenue": 11,
+            "total_identified_revenue": 146217965000,
+            "coverage_assumption": 0.4,
+            "market_estimate": 365544912500.0,
+            "revenue_breakdown": [
+              {
+                "company": "J SAINSBURY PLC",
+                "revenue": 31739000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "ASDA STORES LIMITED",
+                "revenue": 22245000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "WM MORRISON SUPERMARKETS PLC",
+                "revenue": 18978000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "LIDL GREAT BRITAIN LIMITED",
+                "revenue": 11732965000,
+                "source": "Verified (2025)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "ALDI STORES LIMITED",
+                "revenue": 15521000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "MARKS AND SPENCER PLC",
+                "revenue": 13041000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "WAITROSE LIMITED",
+                "revenue": 7776000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "ICELAND FOODS LIMITED",
+                "revenue": 3445000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "OCADO GROUP PLC",
+                "revenue": 2833000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "CO-OPERATIVE GROUP LIMITED",
+                "revenue": 11907000000,
+                "source": "Verified (2023)",
+                "tier": "DIRECT"
+              },
+              {
+                "company": "BOOKER LIMITED",
+                "revenue": 7000000000,
+                "source": "Verified (2024)",
+                "tier": "DIRECT"
+              }
+            ],
+            "maths": "\u00a3146218.0m identified revenue \u00f7 40% coverage = \u00a3365544.9m",
+            "footnote": "Sum of 11 companies with revenue data from 11 all competitors, assuming they represent 40% of the market."
+          }
+        }
+      },
+      "aggregate_cagr": null,
+      "cagr_period": "",
+      "companies_with_revenue_data": 11,
+      "total_companies": 11,
+      "reliability_warning": null
+    },
+    "cross_check": "Top-down (\u00a3243696.6m) and bottom-up base case (\u00a3243696.6m) are directionally consistent (ratio 1.0\u00d7). This gives reasonable confidence in the \u00a3243697m\u2013\u00a3243697m range."
+  },
+  "known_unknowns": {
+    "category_1_no_financials": [],
+    "category_2_data_quality": [
+      {
+        "issue": "Stale data \u2014 most recent filing is 2023",
+        "company": "ASDA STORES LIMITED",
+        "detail": "Last available accounts are 3 years old.",
+        "effort": "Quick Win (< 1 hour)",
+        "action": "Check if more recent accounts have been filed; company may have been acquired or dissolved."
+      },
+      {
+        "issue": "Stale data \u2014 most recent filing is 2023",
+        "company": "ALDI STORES LIMITED",
+        "detail": "Last available accounts are 3 years old.",
+        "effort": "Quick Win (< 1 hour)",
+        "action": "Check if more recent accounts have been filed; company may have been acquired or dissolved."
+      },
+      {
+        "issue": "Stale data \u2014 most recent filing is 2023",
+        "company": "OCADO GROUP PLC",
+        "detail": "Last available accounts are 3 years old.",
+        "effort": "Quick Win (< 1 hour)",
+        "action": "Check if more recent accounts have been filed; company may have been acquired or dissolved."
+      },
+      {
+        "issue": "Stale data \u2014 most recent filing is 2023",
+        "company": "CO-OPERATIVE GROUP LIMITED",
+        "detail": "Last available accounts are 3 years old.",
+        "effort": "Quick Win (< 1 hour)",
+        "action": "Check if more recent accounts have been filed; company may have been acquired or dissolved."
+      }
+    ],
+    "category_3_discovery_gaps": [
+      {
+        "gap": "Registry SIC/NAF code search not performed",
+        "reason": "No SIC code provided or registry not available for this country",
+        "action": "Identify the correct SIC/SIC equivalent code and re-run Method A",
+        "effort": "Quick Win (< 1 hour)"
+      },
+      {
+        "gap": "Foreign-owned subsidiaries may be under-represented",
+        "reason": "UK subsidiaries of foreign parents may file consolidated accounts that obscure local revenue",
+        "action": "Review Companies House filings for parent company disclosures; search for UK-specific revenue in group annual reports",
+        "effort": "Medium (half day)"
+      },
+      {
+        "gap": "Private companies with dormant/micro filings may be excluded",
+        "reason": "Very small companies below micro-entity threshold may have no useful financial data",
+        "action": "LinkedIn headcount check for all identified companies to confirm active status",
+        "effort": "Quick Win (< 1 hour)"
+      }
+    ],
+    "category_4_market_sizing": [
+      {
+        "limitation": "Coverage assumption (40\u201380%) is the most sensitive variable in the model",
+        "action": "Validate by checking ONS Annual Business Survey for total sector revenue, or by obtaining trade association aggregate statistics",
+        "effort": "Quick Win (< 1 hour)",
+        "value": "Would allow pinning the bottom-up coverage assumption to a verifiable figure"
+      },
+      {
+        "limitation": "Top-down market size figure not from a primary source",
+        "action": "Search IBISWorld, Mintel, or Statista free previews; contact relevant trade body; check ONS PRODCOM or ABI data",
+        "effort": "Medium (half day)",
+        "value": "High \u2014 a credible published market size would anchor the entire analysis"
+      },
+      {
+        "limitation": "No primary research (customer interviews) conducted",
+        "action": "Conduct 5\u201310 expert interviews via industry contacts or expert network (e.g. GLG, AlphaSights) to validate size and growth rate",
+        "effort": "Hard (specialist access needed)",
+        "value": "Would provide qualitative validation of market dynamics and growth trajectory"
+      },
+      {
+        "limitation": "Revenue CAGR based on limited sample of companies with multi-year data",
+        "action": "Obtain 3\u20135 year revenue series for at least 4 direct competitors before relying on the aggregate CAGR figure",
+        "effort": "Medium (half day)",
+        "value": "Medium \u2014 market growth rate affects valuation multiples and projections"
+      }
+    ]
+  }
+}

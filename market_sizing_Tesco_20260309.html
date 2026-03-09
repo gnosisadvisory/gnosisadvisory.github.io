@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Market Sizing — Tesco</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: #f5f7fa;
+          color: #222; font-size: 14px; }
+  .header { background: #1B2B4A; color: white; padding: 20px 30px; }
+  .header h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .header .meta { font-size: 13px; opacity: 0.8; margin-bottom: 10px; }
+  .completeness-bar {
+    display: inline-flex; align-items: center; gap: 12px;
+    background: rgba(255,255,255,0.1); padding: 6px 14px;
+    border-radius: 20px; font-size: 12px;
+  }
+  .conf-dot { width: 10px; height: 10px; border-radius: 50%;
+               background: #f39c12; display: inline-block; }
+  .tabs { background: white; border-bottom: 2px solid #e0e0e0;
+           padding: 0 30px; display: flex; gap: 0; }
+  .tab-btn { padding: 14px 22px; cursor: pointer; font-size: 13px;
+              font-weight: 600; color: #666; border: none; background: none;
+              border-bottom: 3px solid transparent; margin-bottom: -2px;
+              transition: all 0.2s; }
+  .tab-btn.active { color: #1B2B4A; border-bottom-color: #C9A961; }
+  .tab-btn:hover { color: #1B2B4A; }
+  .tab-content { display: none; padding: 24px 30px; }
+  .tab-content.active { display: block; }
+  .card { background: white; border-radius: 8px; padding: 20px;
+           box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 16px; }
+  .card h3 { font-size: 15px; font-weight: 700; color: #1B2B4A;
+              margin-bottom: 14px; border-bottom: 1px solid #f0f0f0;
+              padding-bottom: 8px; }
+  .summary-cards { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+  .summary-card { background: white; border-radius: 8px; padding: 16px 20px;
+                   box-shadow: 0 1px 4px rgba(0,0,0,0.08); min-width: 150px;
+                   text-align: center; flex: 1; }
+  .summary-card .num { font-size: 28px; font-weight: 700; color: #1B2B4A; }
+  .summary-card .lbl { font-size: 11px; color: #888; margin-top: 2px; }
+  table { width: 100%; border-collapse: collapse; }
+  th { background: #f8f9fa; padding: 10px; text-align: left;
+        font-size: 12px; color: #555; border-bottom: 2px solid #e0e0e0; }
+  td { border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+  tr:hover td { background: #fafbfc; }
+  .charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 16px;
+                 margin-bottom: 16px; }
+  .matrix-table td { text-align: center; padding: 14px; min-width: 160px; }
+  .matrix-table th { text-align: center; }
+  .matrix-table .row-header { background: #f8f9fa; font-weight: 600;
+                                font-size: 12px; color: #1B2B4A; }
+  .big-number { font-size: 36px; font-weight: 700; color: #1B2B4A;
+                 margin: 8px 0; }
+  .gap-section h4 { color: #1B2B4A; font-size: 13px; font-weight: 700;
+                     margin-bottom: 10px; text-transform: uppercase;
+                     letter-spacing: 0.5px; }
+  a { color: #1B2B4A; }
+  .footnotes { font-size: 11px; color: #888; margin-top: 16px;
+                border-top: 1px solid #eee; padding-top: 10px; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <h1>Market Sizing Analysis — Tesco</h1>
+  <div class="meta">UK &nbsp;·&nbsp; Grocery Retail &nbsp;·&nbsp; Analysis date: 2026-03-09 &nbsp;·&nbsp; Mode: UK — Companies House API</div>
+  
+  <div class="completeness-bar">
+    <span class="conf-dot"></span>
+    <span>Confidence: <strong>MEDIUM</strong> — 100% of companies have financial data (verified or inferred)</span>
+    &nbsp;|&nbsp;
+    <span>Data completeness: <strong>100%</strong></span>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('landscape',this)">Competitor Landscape</button>
+  <button class="tab-btn" onclick="showTab('trends',this)">Financial Trends</button>
+  <button class="tab-btn" onclick="showTab('sizing',this)">Market Sizing</button>
+  <button class="tab-btn" onclick="showTab('gaps',this)">Gaps &amp; Next Steps</button>
+</div>
+
+<!-- ================================================================ -->
+<!-- TAB 1 — COMPETITOR LANDSCAPE -->
+<!-- ================================================================ -->
+<div id="tab-landscape" class="tab-content active">
+
+  
+
+  <div class="summary-cards">
+    <div class="summary-card"><div class="num">11</div><div class="lbl">Total companies found</div></div>
+    <div class="summary-card"><div class="num" style="color:#27ae60">11</div><div class="lbl">Verified financials</div></div>
+    <div class="summary-card"><div class="num" style="color:#e67e22">0</div><div class="lbl">Inferred financials</div></div>
+    <div class="summary-card"><div class="num" style="color:#95a5a6">0</div><div class="lbl">No financial data</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Competitor Table</h3>
+    <table id="comp-table">
+      <thead>
+        <tr>
+          <th>Company</th>
+          <th>Revenue</th>
+          <th style="text-align:center">Employees</th>
+          <th>Data Source</th>
+          <th style="text-align:center">Quality</th>
+          <th style="text-align:center">Registry</th>
+        </tr>
+      </thead>
+      <tbody id="comp-tbody">
+        
+        <tr class="comp-row">
+          <td style="padding:8px 10px">
+            J SAINSBURY PLC
+            
+          </td>
+          <td style="padding:8px 10px">£31739.0m</td>
+          <td style="padding:8px 10px;text-align:center">—</td>
+          <td style="padding:8px 10px;font-size:12px">Sainsbury's Annual Report 2024</td>
+          <td style="padding:8px 10px;text-align:center"><span style="background:#27ae60;color:white;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;">VERIFIED</span></td>
+          <td style="padding:8px 10px;text-align:center"></td>
+        </tr>
+        <tr class="comp-row">
+          <td style="padding:8px 10px">
+            ASDA STORES LIMITED
+            
+          </td>
+          <td style="padding:8px 10px">£22245.0m</td>
+          <td style="padding:8px 10px;text-align:center">—</td>
+          <td style="padding:8px 10px;font-size:12px">Asda Annual Report 2023</td>
+          <td style="padding:8px 10px;text-align:center"><span style="background:#27ae60;color:white;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;">VERIFIED</span></td>
+          <td style="padding:8px 10px;text-align:center"></td>
+        </tr>
+        <tr class="comp-row">
+          <td style="padding:8px 10px">
+            WM MORRISON SUPERMARKETS PLC
+            
+          </td>
+          <td style="padding:8px 10px">£18978.0m</td>
+          <td style="padding:8px 10px;text-align:center">—</td>
+          <td style="padding:8px 10px;font-size:12px">Morrisons Annual Report 2024</td>
+          <td style="padding:8px 10px;text-align:center"><span style="background:#27ae60;color:white;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;">VERIFIED</span></td>
+          <td style="padding:8px 10px;text-align:center"></td>
+        </tr>
+        <tr class="comp-row">
+          <td style="padding:8px 10px">
+            ALDI STORES LIMITED
+            
+          </td>
+          <td style="padding:8px 10px">£15521.0m</td>
+          <td style="padding:8px 10px;text-align:center">—</td>
+          <td style="padding:8px 10px;font-size:12px">Aldi Stores Accounts 2022/23</td>
+          <td style="padding:8px 10px;text-align:center"><span style="background:#27ae60;color:white;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;">VERIFIED</span></td>
+          <td style="padding:8px 10px;text-align:center"></td>
+        </tr>
+        <tr class="comp-row">
+          <td style="padding:8px 10px">
+            MARKS AND SPENCER PLC
+            
+          </td>
+          <td style="padding:8px 10px">£13041.0m</td>
+          <td style="padding:8px 10px;text-align:center">—</td>
+          <td style="padding:8px 10px;font-size:12px">M&S Annual Report 2024</td>
+          <td style="padding:8px 10px;text-align:center"><span style="background:#27ae60;color:white;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;">VERIFIED</span></td>
+          <td style="padding:8px 10px;text-align:center"></td>
+        </tr>
+        <tr class="comp-row">
+          <td style="padding:8px 10px">
+            CO-OPERATIVE GROUP LIMITED
+            
+          </td>
+          <td style="padding:8px 10px">£11907.0m</td>
+          <td style="padding:8px 10px;text-align:center">—</td>
+          <td style="padding:8px 10px;font-size:12px">Co-op Group Annual Report 2023</td>
+          <td style="padding:8px 10px;text-align:center"><span style="background:#27ae60;color:white;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;">VERIFIED</span></td>
+          <td style="padding:8px 10px;text-align:center"></td>
+        </tr>
+        <tr class="comp-row">
+          <td style="padding:8px 10px">
+            LIDL GREAT BRITAIN LIMITED
+            
+          </td>
+          <td style="padding:8px 10px">£11733.0m</td>
+          <td style="padding:8px 10px;text-align:center">—</td>
+          <td style="padding:8px 10px;font-size:12px">Lidl GB Accounts 2024/25</td>
+          <td style="padding:8px 10px;text-align:center"><span style="background:#27ae60;color:white;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;">VERIFIED</span></td>
+          <td style="padding:8px 10px;text-align:center"></td>
+        </tr>
+        <tr class="comp-row">
+          <td style="padding:8px 10px">
+            WAITROSE LIMITED
+            
+          </td>
+          <td style="padding:8px 10px">£7776.0m</td>
+          <td style="padding:8px 10px;text-align:center">—</td>
+          <td style="padding:8px 10px;font-size:12px">John Lewis Partnership Annual Report 2024</td>
+          <td style="padding:8px 10px;text-align:center"><span style="background:#27ae60;color:white;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;">VERIFIED</span></td>
+          <td style="padding:8px 10px;text-align:center"></td>
+        </tr>
+        <tr class="comp-row">
+          <td style="padding:8px 10px">
+            BOOKER LIMITED
+            
+          </td>
+          <td style="padding:8px 10px">£7000.0m</td>
+          <td style="padding:8px 10px;text-align:center">—</td>
+          <td style="padding:8px 10px;font-size:12px">Tesco Group Annual Report 2024 (Booker wholesale)</td>
+          <td style="padding:8px 10px;text-align:center"><span style="background:#27ae60;color:white;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;">VERIFIED</span></td>
+          <td style="padding:8px 10px;text-align:center"></td>
+        </tr>
+        <tr class="comp-row">
+          <td style="padding:8px 10px">
+            ICELAND FOODS LIMITED
+            
+          </td>
+          <td style="padding:8px 10px">£3445.0m</td>
+          <td style="padding:8px 10px;text-align:center">—</td>
+          <td style="padding:8px 10px;font-size:12px">Iceland Foods Accounts 2023/24</td>
+          <td style="padding:8px 10px;text-align:center"><span style="background:#27ae60;color:white;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;">VERIFIED</span></td>
+          <td style="padding:8px 10px;text-align:center"></td>
+        </tr>
+        <tr class="comp-row">
+          <td style="padding:8px 10px">
+            OCADO GROUP PLC
+            
+          </td>
+          <td style="padding:8px 10px">£2833.0m</td>
+          <td style="padding:8px 10px;text-align:center">—</td>
+          <td style="padding:8px 10px;font-size:12px">Ocado Annual Report 2023</td>
+          <td style="padding:8px 10px;text-align:center"><span style="background:#27ae60;color:white;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;">VERIFIED</span></td>
+          <td style="padding:8px 10px;text-align:center"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="charts-row">
+    <div class="card">
+      <h3>Revenue Comparison</h3>
+      <canvas id="revenueChart" height="300"></canvas>
+    </div>
+    <div class="card">
+      <h3>Discovery Methods</h3>
+      <canvas id="discoveryDonut"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<!-- ================================================================ -->
+<!-- TAB 2 — FINANCIAL TRENDS -->
+<!-- ================================================================ -->
+<div id="tab-trends" class="tab-content">
+
+  <div class="card">
+    <h3>Revenue Trends (£m)</h3>
+    <canvas id="trendsChart" height="200"></canvas>
+    <p style="font-size:12px;color:#888;margin-top:8px">
+      Solid lines = direct competitors. Dashed lines = second-tier.
+      0 companies excluded due to missing data.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Year-on-Year Revenue Growth</h3>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>Company</th><th>Tier</th>
+          <th style='text-align:center'></th> <th style='text-align:center'></th> <th style='text-align:center'></th> <th style='text-align:center'></th>
+        </tr></thead>
+        <tbody><tr><td colspan="6" style="color:#aaa;padding:12px">Insufficient multi-year data available.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>CAGR Summary</h3>
+    <table>
+      <thead><tr>
+        <th>Company</th>
+        <th style="text-align:center">Data Period</th>
+        <th style="text-align:center">Revenue CAGR</th>
+        <th style="text-align:center">Profit CAGR</th>
+        <th style="text-align:center">Headcount CAGR</th>
+      </tr></thead>
+      <tbody>
+        <tr><td colspan="5" style="color:#aaa;padding:12px">Insufficient multi-year data for CAGR calculation.</td></tr>
+      </tbody>
+    </table>
+    
+  </div>
+
+</div>
+
+<!-- ================================================================ -->
+<!-- TAB 3 — MARKET SIZING -->
+<!-- ================================================================ -->
+<div id="tab-sizing" class="tab-content">
+
+  <div class="card">
+    <h3>Top-Down Market Estimate</h3>
+    <div style="display:flex;gap:20px;align-items:flex-start">
+      <div>
+        <div class="big-number">£243696.6m</div>
+        <div style="font-size:12px;color:#888">Total addressable market — UK</div>
+      </div>
+      <div style="flex:1">
+        <span style="background:#c0392b;color:white;padding:3px 10px;
+                     border-radius:12px;font-size:11px;font-weight:600">LOW</span>
+        <p style="margin-top:8px;font-size:13px;color:#555">No published market size found. Proxy constructed from 11 companies with known revenue data (total £146218.0m ÷ 60% assumed coverage = £243696.6m). Treat as directional only.</p>
+        <p style="font-size:12px;color:#888;margin-top:6px">Source: <a href="None" target="_blank">Constructed proxy: sum of identified players ÷ 60% coverage assumption</a></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Bottom-Up Market Estimate — 3×3 Scenario Matrix</h3>
+    
+    <div style="overflow-x:auto">
+    <table class="matrix-table" style="border:1px solid #e0e0e0">
+      <thead>
+        <tr style="background:#1B2B4A;color:white">
+          <th style="padding:12px;min-width:140px">Coverage scenario</th>
+          <th>All identified players<br><small style="font-weight:normal;opacity:0.8">(11 companies)</small></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-header">Conservative<br><small style="font-weight:400">Identified = 80% of market</small></td>
+          <td><div style="font-size:18px;font-weight:700;color:#1B2B4A">£182772.5m</div><div style="font-size:10px;color:#888;margin-top:4px">£146218.0m identified revenue ÷ 80% coverage = £182772.5m</div></td>
+        </tr>
+        <tr style="background:#f8f9fa">
+          <td class="row-header" style="background:#EBF0F7;color:#1B2B4A">
+            <strong>Base case</strong><br><small style="font-weight:400">Identified = 60% of market</small>
+          </td>
+          <td style="background:#EBF0F7"><strong><div style="font-size:18px;font-weight:700;color:#1B2B4A">£243696.6m</div><div style="font-size:10px;color:#888;margin-top:4px">£146218.0m identified revenue ÷ 60% coverage = £243696.6m</div></strong></td>
+        </tr>
+        <tr>
+          <td class="row-header">Aggressive<br><small style="font-weight:400">Identified = 40% of market</small></td>
+          <td><div style="font-size:18px;font-weight:700;color:#1B2B4A">£365544.9m</div><div style="font-size:10px;color:#888;margin-top:4px">£146218.0m identified revenue ÷ 40% coverage = £365544.9m</div></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <p style="font-size:11px;color:#888;margin-top:8px">
+      Market size = sum of identified company revenues ÷ assumed coverage fraction.
+      Revenue figures from Companies House filings (verified) or balance sheet inference (inferred).
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div class="card">
+      <h3>Aggregate Market CAGR</h3>
+      <div class="big-number">—</div>
+      <div style="font-size:12px;color:#888"></div>
+      <p style="font-size:12px;color:#666;margin-top:8px">
+        Based on 0 companies with multi-year data.
+        Treat as indicative — confidence increases with more data points.
+      </p>
+    </div>
+    <div class="card">
+      <h3>Cross-Check Commentary</h3>
+      <p style="font-size:13px;line-height:1.6;color:#444">Top-down (£243696.6m) and bottom-up base case (£243696.6m) are directionally consistent (ratio 1.0×). This gives reasonable confidence in the £243697m–£243697m range.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ================================================================ -->
+<!-- TAB 4 — GAPS & NEXT STEPS -->
+<!-- ================================================================ -->
+<div id="tab-gaps" class="tab-content">
+
+  <div class="card gap-section">
+    <h3>Category 1 — Companies Found, No Financials</h3>
+    <h4 style="color:#888;font-size:11px;margin-bottom:8px">0 items</h4>
+    <table>
+      <thead><tr><th>Company</th><th>Recommended Action</th><th style="text-align:center">Effort</th><th>Potential Value</th></tr></thead>
+      <tbody><tr><td colspan="4" style="color:#aaa;padding:12px">No items identified.</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="card gap-section">
+    <h3>Category 2 — Data Quality Issues</h3>
+    <h4 style="color:#888;font-size:11px;margin-bottom:8px">4 items</h4>
+    <table>
+      <thead><tr><th>Issue</th><th>Company</th><th>Detail</th><th style="text-align:center">Effort</th><th>Action</th></tr></thead>
+      <tbody><tr style='border-bottom:1px solid #eee'><td style='padding:8px 10px;vertical-align:top'>Stale data — most recent filing is 2023</td><td style='padding:8px 10px;vertical-align:top'>ASDA STORES LIMITED</td><td style='padding:8px 10px;vertical-align:top'>Last available accounts are 3 years old.</td><td style='padding:8px 10px;text-align:center'><span style="background:#27ae60;color:white;padding:2px 8px;border-radius:10px;font-size:11px;">Quick Win (< 1 hour)</span></td><td style='padding:8px 10px;font-size:11px;color:#666'></td></tr><tr style='border-bottom:1px solid #eee'><td style='padding:8px 10px;vertical-align:top'>Stale data — most recent filing is 2023</td><td style='padding:8px 10px;vertical-align:top'>ALDI STORES LIMITED</td><td style='padding:8px 10px;vertical-align:top'>Last available accounts are 3 years old.</td><td style='padding:8px 10px;text-align:center'><span style="background:#27ae60;color:white;padding:2px 8px;border-radius:10px;font-size:11px;">Quick Win (< 1 hour)</span></td><td style='padding:8px 10px;font-size:11px;color:#666'></td></tr><tr style='border-bottom:1px solid #eee'><td style='padding:8px 10px;vertical-align:top'>Stale data — most recent filing is 2023</td><td style='padding:8px 10px;vertical-align:top'>OCADO GROUP PLC</td><td style='padding:8px 10px;vertical-align:top'>Last available accounts are 3 years old.</td><td style='padding:8px 10px;text-align:center'><span style="background:#27ae60;color:white;padding:2px 8px;border-radius:10px;font-size:11px;">Quick Win (< 1 hour)</span></td><td style='padding:8px 10px;font-size:11px;color:#666'></td></tr><tr style='border-bottom:1px solid #eee'><td style='padding:8px 10px;vertical-align:top'>Stale data — most recent filing is 2023</td><td style='padding:8px 10px;vertical-align:top'>CO-OPERATIVE GROUP LIMITED</td><td style='padding:8px 10px;vertical-align:top'>Last available accounts are 3 years old.</td><td style='padding:8px 10px;text-align:center'><span style="background:#27ae60;color:white;padding:2px 8px;border-radius:10px;font-size:11px;">Quick Win (< 1 hour)</span></td><td style='padding:8px 10px;font-size:11px;color:#666'></td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="card gap-section">
+    <h3>Category 3 — Discovery Gaps</h3>
+    <h4 style="color:#888;font-size:11px;margin-bottom:8px">3 items</h4>
+    <table>
+      <thead><tr><th>Gap</th><th>Reason</th><th>Action</th><th style="text-align:center">Effort</th></tr></thead>
+      <tbody><tr style='border-bottom:1px solid #eee'><td style='padding:8px 10px;vertical-align:top'>Registry SIC/NAF code search not performed</td><td style='padding:8px 10px;vertical-align:top'>No SIC code provided or registry not available for this country</td><td style='padding:8px 10px;vertical-align:top'>Identify the correct SIC/SIC equivalent code and re-run Method A</td><td style='padding:8px 10px;text-align:center'><span style="background:#27ae60;color:white;padding:2px 8px;border-radius:10px;font-size:11px;">Quick Win (< 1 hour)</span></td><td style='padding:8px 10px;font-size:11px;color:#666'></td></tr><tr style='border-bottom:1px solid #eee'><td style='padding:8px 10px;vertical-align:top'>Foreign-owned subsidiaries may be under-represented</td><td style='padding:8px 10px;vertical-align:top'>UK subsidiaries of foreign parents may file consolidated accounts that obscure local revenue</td><td style='padding:8px 10px;vertical-align:top'>Review Companies House filings for parent company disclosures; search for UK-specific revenue in group annual reports</td><td style='padding:8px 10px;text-align:center'><span style="background:#f39c12;color:white;padding:2px 8px;border-radius:10px;font-size:11px;">Medium (half day)</span></td><td style='padding:8px 10px;font-size:11px;color:#666'></td></tr><tr style='border-bottom:1px solid #eee'><td style='padding:8px 10px;vertical-align:top'>Private companies with dormant/micro filings may be excluded</td><td style='padding:8px 10px;vertical-align:top'>Very small companies below micro-entity threshold may have no useful financial data</td><td style='padding:8px 10px;vertical-align:top'>LinkedIn headcount check for all identified companies to confirm active status</td><td style='padding:8px 10px;text-align:center'><span style="background:#27ae60;color:white;padding:2px 8px;border-radius:10px;font-size:11px;">Quick Win (< 1 hour)</span></td><td style='padding:8px 10px;font-size:11px;color:#666'></td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="card gap-section">
+    <h3>Category 4 — Market Sizing Limitations</h3>
+    <h4 style="color:#888;font-size:11px;margin-bottom:8px">4 items</h4>
+    <table>
+      <thead><tr><th>Limitation</th><th>Recommended Action</th><th style="text-align:center">Effort</th><th>Value</th></tr></thead>
+      <tbody><tr style='border-bottom:1px solid #eee'><td style='padding:8px 10px;vertical-align:top'>Coverage assumption (40–80%) is the most sensitive variable in the model</td><td style='padding:8px 10px;vertical-align:top'>Validate by checking ONS Annual Business Survey for total sector revenue, or by obtaining trade association aggregate statistics</td><td style='padding:8px 10px;vertical-align:top'>Quick Win (< 1 hour)</td><td style='padding:8px 10px;text-align:center'><span style="background:#27ae60;color:white;padding:2px 8px;border-radius:10px;font-size:11px;">Quick Win (< 1 hour)</span></td><td style='padding:8px 10px;font-size:11px;color:#666'>Would allow pinning the bottom-up coverage assumption to a verifiable figure</td></tr><tr style='border-bottom:1px solid #eee'><td style='padding:8px 10px;vertical-align:top'>Top-down market size figure not from a primary source</td><td style='padding:8px 10px;vertical-align:top'>Search IBISWorld, Mintel, or Statista free previews; contact relevant trade body; check ONS PRODCOM or ABI data</td><td style='padding:8px 10px;vertical-align:top'>Medium (half day)</td><td style='padding:8px 10px;text-align:center'><span style="background:#f39c12;color:white;padding:2px 8px;border-radius:10px;font-size:11px;">Medium (half day)</span></td><td style='padding:8px 10px;font-size:11px;color:#666'>High — a credible published market size would anchor the entire analysis</td></tr><tr style='border-bottom:1px solid #eee'><td style='padding:8px 10px;vertical-align:top'>No primary research (customer interviews) conducted</td><td style='padding:8px 10px;vertical-align:top'>Conduct 5–10 expert interviews via industry contacts or expert network (e.g. GLG, AlphaSights) to validate size and growth rate</td><td style='padding:8px 10px;vertical-align:top'>Hard (specialist access needed)</td><td style='padding:8px 10px;text-align:center'><span style="background:#c0392b;color:white;padding:2px 8px;border-radius:10px;font-size:11px;">Hard (specialist access needed)</span></td><td style='padding:8px 10px;font-size:11px;color:#666'>Would provide qualitative validation of market dynamics and growth trajectory</td></tr><tr style='border-bottom:1px solid #eee'><td style='padding:8px 10px;vertical-align:top'>Revenue CAGR based on limited sample of companies with multi-year data</td><td style='padding:8px 10px;vertical-align:top'>Obtain 3–5 year revenue series for at least 4 direct competitors before relying on the aggregate CAGR figure</td><td style='padding:8px 10px;vertical-align:top'>Medium (half day)</td><td style='padding:8px 10px;text-align:center'><span style="background:#f39c12;color:white;padding:2px 8px;border-radius:10px;font-size:11px;">Medium (half day)</span></td><td style='padding:8px 10px;font-size:11px;color:#666'>Medium — market growth rate affects valuation multiples and projections</td></tr></tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- ================================================================ -->
+<!-- JAVASCRIPT -->
+<!-- ================================================================ -->
+<script>
+// Tab switching
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// Revenue bar chart
+const revCtx = document.getElementById('revenueChart').getContext('2d');
+new Chart(revCtx, {
+  type: 'bar',
+  data: {
+    labels: ["J SAINSBURY PLC", "ASDA STORES LIMITED", "WM MORRISON SUPERMARKETS ", "ALDI STORES LIMITED", "MARKS AND SPENCER PLC", "CO-OPERATIVE GROUP LIMITE", "LIDL GREAT BRITAIN LIMITE", "WAITROSE LIMITED", "BOOKER LIMITED", "ICELAND FOODS LIMITED", "OCADO GROUP PLC"],
+    datasets: [{
+      data: [31739.0, 22245.0, 18978.0, 15521.0, 13041.0, 11907.0, 11732.965, 7776.0, 7000.0, 3445.0, 2833.0],
+      backgroundColor: ["#1B2B4A", "#1B2B4A", "#1B2B4A", "#1B2B4A", "#1B2B4A", "#1B2B4A", "#1B2B4A", "#1B2B4A", "#1B2B4A", "#1B2B4A", "#1B2B4A"],
+      borderWidth: 0,
+      borderRadius: 3,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => '£' + ctx.raw.toFixed(1) + 'm'
+        }
+      }
+    },
+    scales: {
+      x: {
+        title: { display: true, text: 'Revenue (£m)', font: { size: 11 } },
+        ticks: { callback: v => '£' + v + 'm' }
+      }
+    }
+  }
+});
+
+// Discovery donut
+const dCtx = document.getElementById('discoveryDonut').getContext('2d');
+new Chart(dCtx, {
+  type: 'doughnut',
+  data: {
+    labels: ["A_registry", "A_seed", "B_web_search"],
+    datasets: [{
+      data: [0, 11, 0],
+      backgroundColor: ["#1B2B4A", "#C9A961", "#2980b9", "#27ae60", "#e74c3c"],
+      borderWidth: 2,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 11 } } }
+    }
+  }
+});
+
+// Trends line chart
+const tCtx = document.getElementById('trendsChart').getContext('2d');
+const trendsData = [];
+trendsData.forEach(ds => {
+  ds.borderDash = ds.borderDash || [];
+  ds.pointRadius = 4;
+  ds.pointHoverRadius = 6;
+});
+new Chart(tCtx, {
+  type: 'line',
+  data: {
+    labels: [],
+    datasets: trendsData
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { font: { size: 11 }, usePointStyle: true }
+      },
+      tooltip: {
+        callbacks: {
+          label: ctx => ctx.dataset.label + ': £' + (ctx.raw || 0).toFixed(1) + 'm'
+        }
+      }
+    },
+    scales: {
+      y: {
+        title: { display: true, text: 'Revenue (£m)' },
+        ticks: { callback: v => '£' + v + 'm' }
+      }
+    }
+  }
+});
+</script>
+
+</body>
+</html>
