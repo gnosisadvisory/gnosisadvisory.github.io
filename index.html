@@ -3,10 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gnosis Advisory | Strategic Advisory for Growth and Investment</title>
+    
+    <!-- Primary Meta Tags -->
+    <title>Gnosis Advisory | Strategic Consulting for Private Equity & Corporates</title>
+    <meta name="title" content="Gnosis Advisory | Strategic Consulting for Private Equity & Corporates">
+    <meta name="description" content="Strategic consulting for private equity and corporates. Commercial due diligence, market sizing, growth strategy. Evidence-based advisory, 66+ deals completed.">
+    <meta name="keywords" content="commercial due diligence UK, strategy consulting UK, PE strategy consultant, growth strategy consulting, market sizing consulting, boutique strategy consulting London, private equity due diligence, Venezuela political risk analysis">
+    <meta name="author" content="Eduardo Rios, PhD">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://gnosisadvisory.co.uk/">
+    <meta property="og:title" content="Gnosis Advisory | Strategic Consulting for Private Equity & Corporates">
+    <meta property="og:description" content="Strategic consulting for private equity and corporates. Commercial due diligence, market sizing, growth strategy. Evidence-based advisory, 66+ deals completed.">
+    <meta property="og:image" content="https://gnosisadvisory.co.uk/eduardo-headshot.jpg">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://gnosisadvisory.co.uk/">
+    <meta property="twitter:title" content="Gnosis Advisory | Strategic Consulting for Private Equity & Corporates">
+    <meta property="twitter:description" content="Strategic consulting for private equity and corporates. Commercial due diligence, market sizing, growth strategy. Evidence-based advisory, 66+ deals completed.">
+    <meta property="twitter:image" content="https://gnosisadvisory.co.uk/eduardo-headshot.jpg">
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QNLR10VJN7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-QNLR10VJN7');
+    </script>
+    
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Schema.org structured data for LLMs -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ProfessionalService",
+      "name": "Gnosis Advisory",
+      "description": "Strategic consulting for private equity and corporates. Commercial due diligence, market sizing, growth strategy.",
+      "url": "https://gnosisadvisory.co.uk",
+      "logo": "https://gnosisadvisory.co.uk/gnosis-logo-square.png",
+      "founder": {
+        "@type": "Person",
+        "name": "Eduardo Rios",
+        "jobTitle": "Founder & Director",
+        "alumniOf": "Sciences Po Paris",
+        "honorificSuffix": "PhD"
+      },
+      "areaServed": {
+        "@type": "Place",
+        "name": "United Kingdom"
+      },
+      "serviceType": ["Commercial Due Diligence", "Growth Strategy", "Market Analysis", "Political Risk Analysis"],
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Flat 11, 1 Offenham Road",
+        "addressLocality": "London",
+        "postalCode": "SW9 7BN",
+        "addressCountry": "GB"
+      },
+      "email": "eduardo@gnosisadvisory.co.uk",
+      "telephone": "+447514777257",
+      "sameAs": [
+        "https://www.linkedin.com/in/eduardo-rios-phd-strategy-consulting/"
+      ]
+    }
+    </script>
+    
     <style>
         * {
             margin: 0;
@@ -67,6 +135,24 @@
             text-decoration: none;
         }
 
+        nav {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        nav a {
+            color: var(--navy);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: var(--gold);
+        }
+
         .contact-btn {
             padding: 0.75rem 2rem;
             background: var(--navy);
@@ -84,6 +170,21 @@
             background: var(--navy-light);
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(10, 37, 64, 0.2);
+        }
+
+        /* Mobile menu toggle (hidden by default) */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background: var(--navy);
+            margin: 3px 0;
+            transition: 0.3s;
         }
 
         /* Hero Section */
@@ -193,18 +294,6 @@
             box-shadow: 0 10px 40px rgba(10, 37, 64, 0.15);
         }
 
-        .profile-placeholder {
-            width: 100%;
-            aspect-ratio: 3/4;
-            background: var(--gray-light);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-
         .about-text {
             font-size: 1.1rem;
             line-height: 1.8;
@@ -232,167 +321,293 @@
         .services-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2.5rem;
-            margin-top: 3rem;
+            gap: 2rem;
         }
 
         .service-card {
             background: var(--white);
             padding: 2.5rem;
             border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(10, 37, 64, 0.08);
+            border: 2px solid var(--gray-light);
             transition: all 0.3s ease;
         }
 
         .service-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 40px rgba(10, 37, 64, 0.15);
+            border-color: var(--gold);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(10, 37, 64, 0.1);
         }
 
         .service-card h3 {
-            font-size: 1.75rem;
-            margin-bottom: 1rem;
+            font-size: 1.5rem;
             color: var(--navy);
+            margin-bottom: 1.5rem;
         }
 
         .service-card ul {
             list-style: none;
-            color: var(--gray);
         }
 
         .service-card li {
             padding: 0.5rem 0;
             padding-left: 1.5rem;
             position: relative;
+            color: var(--gray);
         }
 
         .service-card li::before {
             content: '→';
             position: absolute;
             left: 0;
-            color: #c9a961;
+            color: var(--gold);
             font-weight: bold;
         }
 
-        /* Portfolio Section */
-        .portfolio-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem;
+        /* Framework Section */
+        .framework-section {
+            background: var(--off-white);
         }
 
-        .portfolio-item {
+        .framework-image {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(10, 37, 64, 0.1);
+        }
+
+        .framework-caption {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 1.05rem;
+            color: var(--gray);
+            font-style: italic;
+        }
+
+        /* Case Studies Section */
+        .case-studies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .case-study-card {
             background: var(--white);
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 4px 20px rgba(10, 37, 64, 0.08);
+            border: 2px solid var(--gray-light);
             transition: all 0.3s ease;
+            cursor: pointer;
         }
 
-        .portfolio-item:hover {
+        .case-study-card:hover {
+            border-color: var(--gold);
             transform: translateY(-5px);
-            box-shadow: 0 12px 40px rgba(10, 37, 64, 0.15);
+            box-shadow: 0 10px 30px rgba(10, 37, 64, 0.15);
         }
 
-        .portfolio-image {
+        .case-study-image {
             width: 100%;
-            height: 250px;
+            height: 200px;
             object-fit: cover;
         }
 
-        .portfolio-placeholder {
-            width: 100%;
-            height: 250px;
-            background: var(--gray-light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-
-        .portfolio-caption {
+        .case-study-content {
             padding: 1.5rem;
         }
 
-        .portfolio-caption h4 {
-            font-size: 1.1rem;
+        .case-study-content h3 {
+            font-size: 1.3rem;
             color: var(--navy);
             margin-bottom: 0.5rem;
         }
 
-        .portfolio-caption p {
-            color: var(--gray);
+        .case-study-meta {
+            font-size: 0.9rem;
+            color: var(--gold);
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .case-study-preview {
             font-size: 0.95rem;
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(10, 37, 64, 0.9);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 85vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal-header {
+            padding: 2rem;
+            border-bottom: 2px solid var(--gray-light);
+            position: sticky;
+            top: 0;
+            background: var(--white);
+            z-index: 10;
+        }
+
+        .modal-header h2 {
+            font-size: 2rem;
+            color: var(--navy);
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-meta {
+            font-size: 1rem;
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        .close {
+            color: var(--gray);
+            float: right;
+            font-size: 2rem;
+            font-weight: bold;
+            line-height: 1;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: var(--navy);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-image {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(10, 37, 64, 0.1);
+        }
+
+        .case-section {
+            margin-bottom: 2rem;
+        }
+
+        .case-section h3 {
+            font-size: 1.3rem;
+            color: var(--navy);
+            margin-bottom: 0.75rem;
+        }
+
+        .case-section p {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: var(--gray);
+        }
+
+        .modal-footer {
+            padding: 2rem;
+            border-top: 2px solid var(--gray-light);
+            text-align: center;
+        }
+
+        .modal-contact-btn {
+            padding: 1rem 2.5rem;
+            background: var(--gold);
+            color: var(--white);
+            border: none;
+            border-radius: 4px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .modal-contact-btn:hover {
+            background: var(--navy);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(10, 37, 64, 0.3);
         }
 
         /* Media Section */
         .media-logos {
-            display: flex;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
             align-items: center;
-            gap: 4rem;
-            flex-wrap: wrap;
-            margin-top: 3rem;
-            padding: 2rem;
-        }
-
-        .media-logo {
-            height: 60px;
-            opacity: 0.7;
-            transition: opacity 0.3s ease;
-            filter: grayscale(100%);
-        }
-
-        .media-logo:hover {
-            opacity: 1;
-            filter: grayscale(0%);
         }
 
         .media-placeholder {
-            width: 150px;
-            height: 60px;
-            background: var(--gray-light);
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--gray);
-            font-size: 0.85rem;
+            background: var(--white);
+            padding: 2.5rem;
+            text-align: center;
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: var(--navy);
+            transition: all 0.3s ease;
+        }
+
+        .media-placeholder:hover {
+            border-color: var(--gold);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(10, 37, 64, 0.1);
         }
 
         /* Contact Section */
         .contact-content {
-            max-width: 800px;
+            max-width: 600px;
             margin: 0 auto;
             text-align: center;
         }
 
         .contact-info {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem;
+            gap: 1.5rem;
+            margin-top: 2rem;
         }
 
         .contact-item {
-            padding: 2rem;
-            background: var(--white);
+            padding: 1.5rem;
+            background: var(--off-white);
             border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(10, 37, 64, 0.08);
         }
 
         .contact-item strong {
             display: block;
             color: var(--navy);
             margin-bottom: 0.5rem;
-            font-size: 1.1rem;
+            font-size: 0.9rem;
         }
 
         .contact-item a {
-            color: var(--gray);
+            color: var(--gold);
             text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 500;
             transition: color 0.3s ease;
         }
 
@@ -403,15 +618,14 @@
         /* Footer */
         footer {
             background: var(--navy);
-            color: var(--gray-light);
+            color: var(--white);
             padding: 3rem 2rem;
             text-align: center;
         }
 
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            font-size: 0.9rem;
+        .footer-content p {
+            margin: 0.5rem 0;
+            color: rgba(255, 255, 255, 0.8);
         }
 
         /* Animations */
@@ -426,8 +640,32 @@
             }
         }
 
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
+            nav {
+                display: none;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+
             .hero h1 {
                 font-size: 2.5rem;
             }
@@ -451,6 +689,15 @@
             .hero-stats {
                 grid-template-columns: 1fr;
             }
+
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
+
+            .modal-header h2 {
+                font-size: 1.5rem;
+            }
         }
 
         /* Smooth Scroll */
@@ -464,7 +711,17 @@
     <header>
         <div class="header-content">
             <a href="#" class="logo">GNOSIS ADVISORY</a>
-            <a href="#contact" class="contact-btn">Get in Touch</a>
+            <nav>
+                <a href="#about">About</a>
+                <a href="#services">Services</a>
+                <a href="#case-studies">Work</a>
+                <a href="#contact" class="contact-btn">Get in Touch</a>
+            </nav>
+            <div class="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
         </div>
     </header>
 
@@ -500,7 +757,7 @@
         <h2 class="section-title">About</h2>
         <div class="about-content">
             <div>
-                <img src="eduardo-headshot.jpg" alt="Eduardo Rios, PhD" class="profile-image">
+                <img src="eduardo-headshot.jpg" alt="Eduardo Rios, PhD - Strategic Consultant" class="profile-image">
             </div>
             <div>
                 <div class="about-text">
@@ -558,35 +815,187 @@
         </div>
     </section>
 
-    <!-- Portfolio/Deliverables Section -->
-    <section id="portfolio">
-        <h2 class="section-title">Select Deliverables</h2>
-        <div class="portfolio-grid">
-            <div class="portfolio-item">
-                <div class="portfolio-placeholder">Competitive Analysis</div>
-                <div class="portfolio-caption">
-                    <h4>UK 3PL Market Share Analysis</h4>
-                    <p>Comprehensive competitive intelligence for £2B logistics company using Companies House data</p>
+    <!-- Framework Section -->
+    <section id="framework" class="framework-section">
+        <h2 class="section-title">Our Approach</h2>
+        <img src="framework-diagram.png" alt="Engaging with firms from investment to operations" class="framework-image">
+        <p class="framework-caption">We work with clients across the investment lifecycle, from pre-transaction due diligence to post-acquisition growth strategy</p>
+    </section>
+
+    <!-- Case Studies Section -->
+    <section id="case-studies">
+        <h2 class="section-title">Case Studies</h2>
+        <div class="case-studies-grid">
+            <!-- Case Study 1: PE Market Sizing -->
+            <div class="case-study-card" onclick="openModal('modal1')">
+                <img src="case1-pe-market-sizing.png" alt="PE Market Sizing Analysis" class="case-study-image">
+                <div class="case-study-content">
+                    <h3>PE Market Sizing for Roll-Up Strategy</h3>
+                    <div class="case-study-meta">Private Equity • B2B Software</div>
+                    <p class="case-study-preview">Built bottom-up TAM/SAM/SOM model to evaluate acquisition opportunity in compliance software market...</p>
                 </div>
             </div>
-            
-            <div class="portfolio-item">
-                <div class="portfolio-placeholder">Market Sizing</div>
-                <div class="portfolio-caption">
-                    <h4>B2B Payments Market Forecast</h4>
-                    <p>Growth projections tied to macroeconomic indicators for PE investment committee</p>
+
+            <!-- Case Study 2: Venezuela Intelligence -->
+            <div class="case-study-card" onclick="openModal('modal2')">
+                <img src="case2-venezuela-intelligence.png" alt="Venezuela Political Risk Assessment" class="case-study-image">
+                <div class="case-study-content">
+                    <h3>Venezuela Political Risk Assessment</h3>
+                    <div class="case-study-meta">Corporate • Geopolitical Intelligence</div>
+                    <p class="case-study-preview">Conducted 20 expert interviews to assess political stability and operational landscape for market entry decision...</p>
                 </div>
             </div>
-            
-            <div class="portfolio-item">
-                <div class="portfolio-placeholder">Due Diligence</div>
-                <div class="portfolio-caption">
-                    <h4>Commercial Due Diligence Dashboard</h4>
-                    <p>Strategic positioning analysis based on 50+ expert interviews for Advent International</p>
+
+            <!-- Case Study 3: School Engagement -->
+            <div class="case-study-card" onclick="openModal('modal3')">
+                <img src="case3-school-engagement.png" alt="School Engagement Strategy" class="case-study-image">
+                <div class="case-study-content">
+                    <h3>Data-Driven School Engagement Strategy</h3>
+                    <div class="case-study-meta">PE-Backed • Education Services</div>
+                    <p class="case-study-preview">Python-based benchmarking and cluster analysis to create tailored engagement strategies across school archetypes...</p>
+                </div>
+            </div>
+
+            <!-- Case Study 4: DHL Market Intelligence -->
+            <div class="case-study-card" onclick="openModal('modal4')">
+                <img src="case4-dhl-market-share.png" alt="DHL Market Share Analysis" class="case-study-image">
+                <div class="case-study-content">
+                    <h3>UK 3PL Market Intelligence for DHL</h3>
+                    <div class="case-study-meta">Corporate • Logistics</div>
+                    <p class="case-study-preview">Built proprietary market sizing model using Companies House data to reveal competitive share dynamics...</p>
                 </div>
             </div>
         </div>
     </section>
+
+    <!-- Modals for Case Studies -->
+    <!-- Modal 1: PE Market Sizing -->
+    <div id="modal1" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close" onclick="closeModal('modal1')">&times;</span>
+                <h2>Management Software Market Sizing for PE Roll-Up Strategy</h2>
+                <div class="modal-meta">Mid-market private equity firm • B2B Software (Services Industry)</div>
+            </div>
+            <div class="modal-body">
+                <img src="case1-pe-market-sizing.png" alt="PE Market Sizing Analysis" class="modal-image">
+                
+                <div class="case-section">
+                    <h3>Challenge</h3>
+                    <p>A PE firm evaluating a compliance software provider in a crowded mid-market niche needed to know: Was the addressable market large enough to support a roll-up strategy?</p>
+                </div>
+
+                <div class="case-section">
+                    <h3>Approach</h3>
+                    <p>Built a bottom-up TAM/SAM/SOM model using ONS business population data, segmented by company size and sector. Developed pricing assumptions through 12 mystery shopping calls with competitors. Validated 3-5 year market forecasts through 5 expert interviews. Modelled competitive positioning and assessed AI disruption risk.</p>
+                </div>
+
+                <div class="case-section">
+                    <h3>Outcome</h3>
+                    <p>Our forecasting showed stable demand with defensible positioning against AI threats. The PE firm proceeded with the acquisition, confident in the market's roll-up potential.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#contact" class="modal-contact-btn" onclick="closeModal('modal1')">Contact us about similar projects</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: Venezuela Intelligence -->
+    <div id="modal2" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close" onclick="closeModal('modal2')">&times;</span>
+                <h2>Venezuela Political Risk Assessment Through Human Intelligence</h2>
+                <div class="modal-meta">Multinational corporation • Political Risk & Geopolitical Intelligence</div>
+            </div>
+            <div class="modal-body">
+                <img src="case2-venezuela-intelligence.png" alt="Venezuela Political Risk Assessment" class="modal-image">
+                
+                <div class="case-section">
+                    <h3>Challenge</h3>
+                    <p>A corporate client considering Venezuelan market entry needed to assess political stability and operational risk in a low-data environment. Key questions: What was the real status of oil contract renegotiations? What was the likelihood of regime change? Which companies were successfully operating under current conditions?</p>
+                </div>
+
+                <div class="case-section">
+                    <h3>Approach</h3>
+                    <p>Conducted 20 expert interviews with on-ground sources across Venezuela, including industry participants, political analysts, and local operators. Built a network-based intelligence picture where public data was unavailable. Assessed government stability indicators and mapped the current operational landscape for foreign companies.</p>
+                </div>
+
+                <div class="case-section">
+                    <h3>Outcome</h3>
+                    <p>Delivered a comprehensive risk assessment identifying key operational challenges, regime stability forecasts, and a profile of companies successfully navigating the Venezuelan market. The analysis enabled the client to make an informed go/no-go decision with ground-truth intelligence unavailable through traditional research.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#contact" class="modal-contact-btn" onclick="closeModal('modal2')">Contact us about similar projects</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 3: School Engagement -->
+    <div id="modal3" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close" onclick="closeModal('modal3')">&times;</span>
+                <h2>Data-Driven School Engagement Strategy for Education Services Provider</h2>
+                <div class="modal-meta">PE-backed education services company • Education & Food Services</div>
+            </div>
+            <div class="modal-body">
+                <img src="case3-school-engagement.png" alt="School Engagement Strategy" class="modal-image">
+                
+                <div class="case-section">
+                    <h3>Challenge</h3>
+                    <p>A leading school meal provider needed to demonstrate their value proposition to schools and systematize their engagement approach. They believed their service improved student outcomes but lacked quantitative evidence and a scalable strategy framework.</p>
+                </div>
+
+                <div class="case-section">
+                    <h3>Approach</h3>
+                    <p>Built Python-based benchmarking model comparing client schools against national GCSE and attendance averages. Ran regression analysis demonstrating statistically significant performance improvements. Surveyed 500 students (UK-representative sample, 100 target population) to identify drivers of success. Applied cluster analysis to identify 8 distinct school archetypes and 6 student personas, creating a matrix of ~100 tailored engagement strategies.</p>
+                </div>
+
+                <div class="case-section">
+                    <h3>Outcome</h3>
+                    <p>Delivered evidence-based playbook to CEO, CFO, COO, and Director of Food demonstrating measurable impact and providing actionable segmentation strategy for both new and existing client schools.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#contact" class="modal-contact-btn" onclick="closeModal('modal3')">Contact us about similar projects</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 4: DHL Market Intelligence -->
+    <div id="modal4" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close" onclick="closeModal('modal4')">&times;</span>
+                <h2>UK 3PL Market Intelligence & Competitive Positioning for DHL</h2>
+                <div class="modal-meta">Global logistics leader • Third-Party Logistics (3PL)</div>
+            </div>
+            <div class="modal-body">
+                <img src="case4-dhl-market-share.png" alt="DHL Market Share Analysis" class="modal-image">
+                
+                <div class="case-section">
+                    <h3>Challenge</h3>
+                    <p>DHL needed to understand market share dynamics in the UK 3PL sector to inform strategic planning. Key question: How was the competitive landscape evolving, and where did DHL stand relative to emerging players?</p>
+                </div>
+
+                <div class="case-section">
+                    <h3>Approach</h3>
+                    <p>Built proprietary market sizing model by identifying all UK 3PL providers with £10M+ revenue through online research and Companies House filings. Extracted financial data to create comprehensive market calculator. Analyzed 5-year historical trends and modeled 3-year forward trajectory to assess market share evolution by company size segment.</p>
+                </div>
+
+                <div class="case-section">
+                    <h3>Outcome</h3>
+                    <p>Analysis revealed DHL had lost share to competitors in key segments. Findings informed regional board decision to revise organic growth targets and adjust competitive strategy accordingly.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#contact" class="modal-contact-btn" onclick="closeModal('modal4')">Contact us about similar projects</a>
+            </div>
+        </div>
+    </div>
 
     <!-- As Seen In Section -->
     <section id="media">
@@ -643,5 +1052,37 @@
             <p style="margin-top: 2rem; opacity: 0.7;">© 2026 Gnosis Advisory. All rights reserved.</p>
         </div>
     </footer>
+
+    <!-- JavaScript for Modal Functionality -->
+    <script>
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = "block";
+            document.body.style.overflow = "hidden"; // Prevent background scrolling
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = "none";
+            document.body.style.overflow = "auto"; // Restore scrolling
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = "none";
+                document.body.style.overflow = "auto";
+            }
+        }
+
+        // Close modal on ESC key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") {
+                const modals = document.querySelectorAll('.modal');
+                modals.forEach(modal => {
+                    modal.style.display = "none";
+                });
+                document.body.style.overflow = "auto";
+            }
+        });
+    </script>
 </body>
 </html>
