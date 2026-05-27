@@ -1,0 +1,11 @@
+title: Gnosis Advisory
+description: Strategic consulting for private equity and corporates.
+url: "https://gnosisadvisory.co.uk"
+baseurl: ""
+
+# Blog settings
+permalink: /insights/:year/:title/
+
+# Exclude files not needed in build
+exclude:
+  - README.md
