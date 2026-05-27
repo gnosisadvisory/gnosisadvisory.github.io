@@ -441,10 +441,34 @@
             box-shadow: 0 10px 30px rgba(10, 37, 64, 0.15);
         }
 
+        .case-study-image-wrap {
+            width: 100%;
+            height: 240px;
+            overflow: hidden;
+            position: relative;
+            background: var(--navy);
+        }
+        .case-study-image-wrap::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(10,37,64,0.05), rgba(10,37,64,0.3));
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .case-study-card:hover .case-study-image-wrap::after { opacity: 0; }
         .case-study-image {
             width: 100%;
-            height: 200px;
+            height: 100%;
             object-fit: cover;
+            object-position: center;
+            display: block;
+            transition: transform 0.4s ease;
+            filter: saturate(0.8);
+        }
+        .case-study-card:hover .case-study-image {
+            transform: scale(1.04);
+            filter: saturate(1);
         }
 
         .case-study-content {
@@ -975,7 +999,7 @@
         <div class="case-studies-grid">
             <!-- Case Study 1: PE Market Sizing -->
             <div class="case-study-card" onclick="openModal('modal1')">
-                <img src="case1-pe-market-sizing.png" alt="PE Market Sizing Analysis" class="case-study-image">
+                <div class="case-study-image-wrap"><img src="case1-pe-market-sizing.png" alt="PE Market Sizing Analysis" class="case-study-image"></div>
                 <div class="case-study-content">
                     <h3>PE Market Sizing for Roll-Up Strategy</h3>
                     <div class="case-study-meta">Private Equity • B2B Software</div>
@@ -985,7 +1009,7 @@
 
             <!-- Case Study 2: Venezuela Intelligence -->
             <div class="case-study-card" onclick="openModal('modal2')">
-                <img src="case2-venezuela-intelligence.png" alt="Venezuela Political Risk Assessment" class="case-study-image">
+                <div class="case-study-image-wrap"><img src="case2-venezuela-intelligence.png" alt="Venezuela Political Risk Assessment" class="case-study-image"></div>
                 <div class="case-study-content">
                     <h3>Venezuela Political Risk Assessment</h3>
                     <div class="case-study-meta">Corporate • Geopolitical Intelligence</div>
@@ -995,7 +1019,7 @@
 
             <!-- Case Study 3: School Engagement -->
             <div class="case-study-card" onclick="openModal('modal3')">
-                <img src="case3-school-engagement.png" alt="School Engagement Strategy" class="case-study-image">
+                <div class="case-study-image-wrap"><img src="case3-school-engagement.png" alt="School Engagement Strategy" class="case-study-image"></div>
                 <div class="case-study-content">
                     <h3>Data-Driven School Engagement Strategy</h3>
                     <div class="case-study-meta">PE-Backed • Education Services</div>
@@ -1003,11 +1027,11 @@
                 </div>
             </div>
 
-            <!-- Case Study 4: DHL Market Intelligence -->
+            <!-- Case Study 4: 3PL Market Intelligence -->
             <div class="case-study-card" onclick="openModal('modal4')">
-                <img src="case4-dhl-market-share.png" alt="DHL Market Share Analysis" class="case-study-image">
+                <div class="case-study-image-wrap"><img src="case4-dhl-market-share.png" alt="UK 3PL Market Share Analysis" class="case-study-image"></div>
                 <div class="case-study-content">
-                    <h3>UK 3PL Market Intelligence for DHL</h3>
+                    <h3>UK 3PL Market Intelligence</h3>
                     <div class="case-study-meta">Corporate • Logistics</div>
                     <p class="case-study-preview">Built proprietary market sizing model using Companies House data to reveal competitive share dynamics...</p>
                 </div>
@@ -1112,20 +1136,20 @@
         </div>
     </div>
 
-    <!-- Modal 4: DHL Market Intelligence -->
+    <!-- Modal 4: 3PL Market Intelligence -->
     <div id="modal4" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <span class="close" onclick="closeModal('modal4')">&times;</span>
-                <h2>UK 3PL Market Intelligence & Competitive Positioning for DHL</h2>
+                <h2>UK 3PL Market Intelligence & Competitive Positioning</h2>
                 <div class="modal-meta">Global logistics leader • Third-Party Logistics (3PL)</div>
             </div>
             <div class="modal-body">
-                <img src="case4-dhl-market-share.png" alt="DHL Market Share Analysis" class="modal-image">
+                <img src="case4-dhl-market-share.png" alt="UK 3PL Market Share Analysis" class="modal-image">
                 
                 <div class="case-section">
                     <h3>Challenge</h3>
-                    <p>DHL needed to understand market share dynamics in the UK 3PL sector to inform strategic planning. Key question: How was the competitive landscape evolving, and where did DHL stand relative to emerging players?</p>
+                    <p>A global logistics leader needed to understand market share dynamics in the UK 3PL sector to inform strategic planning. Key question: How was the competitive landscape evolving, and where did the client stand relative to emerging players?</p>
                 </div>
 
                 <div class="case-section">
@@ -1135,7 +1159,7 @@
 
                 <div class="case-section">
                     <h3>Outcome</h3>
-                    <p>Analysis revealed DHL had lost share to competitors in key segments. Findings informed regional board decision to revise organic growth targets and adjust competitive strategy accordingly.</p>
+                    <p>Analysis revealed the client had lost share to competitors in key segments. Findings informed regional board decision to revise organic growth targets and adjust competitive strategy accordingly.</p>
                 </div>
             </div>
             <div class="modal-footer">
