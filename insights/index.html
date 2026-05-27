@@ -1,0 +1,231 @@
+---
+layout: null
+title: Research & Perspectives | Gnosis Advisory
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research &amp; Perspectives | Gnosis Advisory</title>
+    <meta name="description" content="Analysis and perspectives on commercial due diligence, growth strategy, geopolitical risk, and private equity from Gnosis Advisory.">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QNLR10VJN7"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-QNLR10VJN7');
+    </script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --navy: #0a2540;
+            --navy-light: #1a3a5c;
+            --gold: #c9a961;
+            --off-white: #f8f9fa;
+            --gray: #64748b;
+            --text: #2d3748;
+        }
+        body { font-family: 'Work Sans', sans-serif; color: var(--text); background: white; }
+
+        header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: white;
+            border-bottom: 1px solid rgba(10,37,64,0.08);
+            padding: 1.2rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+        .logo { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 700; color: var(--navy); text-decoration: none; letter-spacing: 0.08em; }
+        nav a { color: var(--navy); text-decoration: none; font-size: 0.9rem; font-weight: 500; margin-left: 2rem; letter-spacing: 0.02em; opacity: 0.8; transition: opacity 0.2s; }
+        nav a:hover { opacity: 1; }
+        nav a.active { opacity: 1; border-bottom: 2px solid var(--gold); padding-bottom: 2px; }
+        .contact-btn { background: var(--navy); color: white !important; padding: 0.6rem 1.4rem; border-radius: 4px; opacity: 1 !important; }
+
+        /* Hero */
+        .insights-hero {
+            background: var(--navy);
+            padding: 8rem 4rem 4rem;
+            color: white;
+        }
+        .insights-hero h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3.2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        .hero-underline {
+            width: 50px; height: 3px;
+            background: var(--gold);
+            margin-bottom: 1.2rem;
+        }
+        .insights-hero p {
+            color: rgba(255,255,255,0.7);
+            font-size: 1.05rem;
+            max-width: 560px;
+            line-height: 1.7;
+        }
+
+        /* Posts grid */
+        .insights-container {
+            max-width: 1100px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        .post-card {
+            border: 1px solid rgba(10,37,64,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            transition: box-shadow 0.2s, transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+        .post-card:hover {
+            box-shadow: 0 8px 32px rgba(10,37,64,0.12);
+            transform: translateY(-2px);
+        }
+
+        .post-card-body { padding: 1.8rem; flex: 1; display: flex; flex-direction: column; }
+
+        .post-card-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 0.8rem;
+        }
+        .post-card-tag {
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--gold);
+        }
+        .post-card-date {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        .post-card h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--navy);
+            line-height: 1.25;
+            margin-bottom: 0.8rem;
+        }
+        .post-card p {
+            font-size: 0.9rem;
+            color: var(--gray);
+            line-height: 1.6;
+            flex: 1;
+        }
+        .post-card-read {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            margin-top: 1.2rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--navy);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        /* Empty state */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 5rem 2rem;
+            color: var(--gray);
+        }
+        .empty-state h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            color: var(--navy);
+            margin-bottom: 0.8rem;
+        }
+        .empty-state p { font-size: 1rem; line-height: 1.6; }
+
+        footer {
+            background: var(--navy);
+            color: rgba(255,255,255,0.6);
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.85rem;
+            margin-top: 4rem;
+        }
+
+        @media (max-width: 768px) {
+            header { padding: 1rem 1.5rem; }
+            nav { display: none; }
+            .insights-hero { padding: 6rem 1.5rem 3rem; }
+            .insights-hero h1 { font-size: 2.2rem; }
+            .posts-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="/" class="logo">GNOSIS ADVISORY</a>
+        <nav>
+            <a href="/#about">About</a>
+            <a href="/#services">Services</a>
+            <a href="/#case-studies">Work</a>
+            <a href="/insights" class="active">Research &amp; Perspectives</a>
+            <a href="/#contact" class="contact-btn">Get in Touch</a>
+        </nav>
+    </header>
+
+    <div class="insights-hero">
+        <h1>Research &amp; Perspectives</h1>
+        <div class="hero-underline"></div>
+        <p>Analysis on commercial due diligence, growth strategy, geopolitical risk, and private equity — from practice, not theory.</p>
+    </div>
+
+    <div class="insights-container">
+        <div class="posts-grid">
+            {% assign posts = site.posts %}
+            {% if posts.size == 0 %}
+            <div class="empty-state">
+                <h3>Articles coming soon</h3>
+                <p>We're working on our first pieces. Check back shortly.</p>
+            </div>
+            {% else %}
+            {% for post in posts %}
+            <a href="{{ post.url }}" class="post-card">
+                <div class="post-card-body">
+                    <div class="post-card-meta">
+                        {% if post.tag %}<span class="post-card-tag">{{ post.tag }}</span>{% endif %}
+                        <span class="post-card-date">{{ post.date | date: "%B %-d, %Y" }}</span>
+                    </div>
+                    <h2>{{ post.title }}</h2>
+                    <p>{{ post.excerpt | strip_html | truncate: 160 }}</p>
+                    <span class="post-card-read">Read more →</span>
+                </div>
+            </a>
+            {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; {% assign y = 'now' | date: "%Y" %}{{ y }} Gnosis Advisory Ltd. Registered in England &amp; Wales. Company No. 16737803.</p>
+    </footer>
+
+</body>
+</html>
