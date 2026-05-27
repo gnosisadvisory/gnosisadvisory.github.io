@@ -364,26 +364,58 @@
         }
 
         /* Framework Section */
-        .framework-section {
-            background: var(--off-white);
-        }
+        .framework-section { background: var(--off-white); }
+        .framework-container { max-width: 1050px; margin: 0 auto; }
+        .framework-title { text-align: center; font-size: 1.6rem; font-weight: 700; color: var(--navy); margin-bottom: 0.5rem; }
+        .framework-subtitle { text-align: center; font-size: 1rem; color: var(--gray); font-style: italic; margin-bottom: 2.5rem; }
 
-        .framework-image {
-            width: 100%;
-            max-width: 1000px;
-            margin: 0 auto;
-            display: block;
-            border-radius: 8px;
-            box-shadow: 0 10px 40px rgba(10, 37, 64, 0.1);
-        }
+        .fw-header-row { display: flex; align-items: flex-end; margin-bottom: 0.5rem; }
+        .fw-legend-cell { width: 100px; flex-shrink: 0; }
+        .fw-client-headers { flex: 1; display: grid; grid-template-columns: repeat(5, 1fr); }
+        .fw-client-name { text-align: center; font-size: 0.82rem; font-weight: 700; color: var(--navy); letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.3; }
 
-        .framework-caption {
-            text-align: center;
-            margin-top: 2rem;
-            font-size: 1.05rem;
-            color: var(--gray);
-            font-style: italic;
-        }
+        .fw-divider-row { display: flex; margin-bottom: 1.5rem; }
+        .fw-divider { flex: 1; height: 1.5px; background: rgba(10,37,64,0.15); }
+
+        .fw-group { display: flex; align-items: stretch; margin-bottom: 0.5rem; }
+
+        .fw-group-legend { width: 100px; flex-shrink: 0; position: relative; display: flex; align-items: center; justify-content: flex-end; padding-right: 14px; }
+
+        .fw-legend-text { writing-mode: vertical-lr; transform: rotate(180deg); font-size: 0.63rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; line-height: 1.2; text-align: center; }
+        .fw-group.generalist .fw-legend-text { color: var(--navy); opacity: 0.55; }
+        .fw-group.specialist .fw-legend-text { color: #9a7428; }
+
+        .fw-brace { position: absolute; right: 0; top: 10px; bottom: 10px; width: 8px; border-top: 1.5px solid; border-left: 1.5px solid; border-bottom: 1.5px solid; border-radius: 3px 0 0 3px; }
+        .fw-group.generalist .fw-brace { border-color: rgba(10, 37, 64, 0.25); }
+        .fw-group.specialist .fw-brace { border-color: rgba(154, 116, 40, 0.4); }
+
+        .fw-group-rows { flex: 1; }
+
+        .fw-service-row { margin-bottom: 1.4rem; position: relative; }
+        .fw-service-row:last-child { margin-bottom: 0; }
+
+        .fw-track { position: relative; height: 20px; display: grid; grid-template-columns: repeat(5, 1fr); align-items: center; }
+        .fw-track::before { content: ''; position: absolute; top: 50%; height: 1.5px; transform: translateY(-50%); z-index: 0; }
+
+        .fw-service-row.universal .fw-track::before { left: 10%; right: 10%; background: rgba(10, 37, 64, 0.25); }
+        .fw-service-row.investment .fw-track::before { left: 10%; right: 70%; background: rgba(201, 169, 97, 0.6); }
+        .fw-service-row.corporate .fw-track::before { left: 50%; right: 30%; background: rgba(201, 169, 97, 0.6); }
+        .fw-service-row.advisory .fw-track::before { display: none; }
+
+        .fw-dot-slot { display: flex; justify-content: center; align-items: center; position: relative; z-index: 1; }
+        .fw-dot { width: 13px; height: 13px; border-radius: 50%; background: var(--navy); box-shadow: 0 0 0 3px rgba(10, 37, 64, 0.1); transition: transform 0.2s ease; }
+        .fw-dot:hover { transform: scale(1.3); }
+        .fw-service-row.investment .fw-dot,
+        .fw-service-row.corporate .fw-dot,
+        .fw-service-row.advisory .fw-dot { background: var(--gold); box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.18); }
+
+        .fw-service-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; margin-top: 0.4rem; }
+        .fw-service-row.universal .fw-service-label { padding-left: 7%; color: var(--navy); opacity: 0.65; }
+        .fw-service-row.investment .fw-service-label { padding-left: 7%; color: #9a7428; }
+        .fw-service-row.corporate .fw-service-label { padding-left: 47%; color: #9a7428; }
+        .fw-service-row.advisory .fw-service-label { padding-left: 82%; color: #9a7428; }
+
+        .framework-caption { text-align: center; margin-top: 2rem; font-size: 1.05rem; color: var(--gray); font-style: italic; }
 
         /* Case Studies Section */
         .case-studies-grid {
@@ -696,6 +728,23 @@
                 grid-template-columns: 1fr;
             }
 
+            .framework-table {
+                font-size: 0.85rem;
+            }
+
+            .framework-table th,
+            .framework-table td {
+                padding: 0.8rem 0.5rem;
+            }
+
+            .framework-title {
+                font-size: 1.3rem;
+            }
+
+            .framework-subtitle {
+                font-size: 0.9rem;
+            }
+
             .modal-content {
                 width: 95%;
                 margin: 10% auto;
@@ -824,7 +873,99 @@
     <!-- Framework Section -->
     <section id="framework" class="framework-section">
         <h2 class="section-title">Our Approach</h2>
-        <img src="framework-diagram.png" alt="Engaging with firms from investment to operations" class="framework-image">
+        <div class="framework-container">
+            <h3 class="framework-title">Engaging with firms from investment to operations</h3>
+            <p class="framework-subtitle">Strategic intelligence for investors, operators, and advisory partners</p>
+
+            <!-- Header row: spacer + client names -->
+            <div class="fw-header-row">
+                <div class="fw-legend-cell"></div>
+                <div class="fw-client-headers">
+                    <div class="fw-client-name">Private<br>Equities</div>
+                    <div class="fw-client-name">Portfolio<br>Firms</div>
+                    <div class="fw-client-name">Large<br>Firms</div>
+                    <div class="fw-client-name">Tech<br>Startups</div>
+                    <div class="fw-client-name">Advisory<br>Firms</div>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="fw-divider-row">
+                <div class="fw-legend-cell"></div>
+                <div class="fw-divider"></div>
+            </div>
+
+            <!-- Generalist Services group -->
+            <div class="fw-group generalist">
+                <div class="fw-group-legend">
+                    <span class="fw-legend-text">Generalist Services</span>
+                    <div class="fw-brace"></div>
+                </div>
+                <div class="fw-group-rows">
+                    <div class="fw-service-row universal">
+                        <div class="fw-track">
+                            <div class="fw-dot-slot"><div class="fw-dot"></div></div>
+                            <div class="fw-dot-slot"><div class="fw-dot"></div></div>
+                            <div class="fw-dot-slot"><div class="fw-dot"></div></div>
+                            <div class="fw-dot-slot"><div class="fw-dot"></div></div>
+                            <div class="fw-dot-slot"><div class="fw-dot"></div></div>
+                        </div>
+                        <div class="fw-service-label">Growth Strategy &amp; Market Analysis</div>
+                    </div>
+                    <div class="fw-service-row universal">
+                        <div class="fw-track">
+                            <div class="fw-dot-slot"><div class="fw-dot"></div></div>
+                            <div class="fw-dot-slot"><div class="fw-dot"></div></div>
+                            <div class="fw-dot-slot"><div class="fw-dot"></div></div>
+                            <div class="fw-dot-slot"><div class="fw-dot"></div></div>
+                            <div class="fw-dot-slot"><div class="fw-dot"></div></div>
+                        </div>
+                        <div class="fw-service-label">Geopolitical &amp; Regulatory Intelligence</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Specialist Services group -->
+            <div class="fw-group specialist">
+                <div class="fw-group-legend">
+                    <span class="fw-legend-text">Specialist Services</span>
+                    <div class="fw-brace"></div>
+                </div>
+                <div class="fw-group-rows">
+                    <div class="fw-service-row investment">
+                        <div class="fw-track">
+                            <div class="fw-dot-slot"><div class="fw-dot"></div></div>
+                            <div class="fw-dot-slot"><div class="fw-dot"></div></div>
+                            <div class="fw-dot-slot"></div>
+                            <div class="fw-dot-slot"></div>
+                            <div class="fw-dot-slot"></div>
+                        </div>
+                        <div class="fw-service-label">Investment Services</div>
+                    </div>
+                    <div class="fw-service-row corporate">
+                        <div class="fw-track">
+                            <div class="fw-dot-slot"></div>
+                            <div class="fw-dot-slot"></div>
+                            <div class="fw-dot-slot"><div class="fw-dot"></div></div>
+                            <div class="fw-dot-slot"><div class="fw-dot"></div></div>
+                            <div class="fw-dot-slot"></div>
+                        </div>
+                        <div class="fw-service-label">Corporate Strategy</div>
+                    </div>
+                    <div class="fw-service-row advisory">
+                        <div class="fw-track">
+                            <div class="fw-dot-slot"></div>
+                            <div class="fw-dot-slot"></div>
+                            <div class="fw-dot-slot"></div>
+                            <div class="fw-dot-slot"></div>
+                            <div class="fw-dot-slot"><div class="fw-dot"></div></div>
+                        </div>
+                        <div class="fw-service-label">Advisory Support</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
         <p class="framework-caption">We work with clients across the investment lifecycle, from pre-transaction due diligence to post-acquisition growth strategy</p>
     </section>
 
