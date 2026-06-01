@@ -23,7 +23,7 @@ Under the new paradigm, the scale of data is no longer an issue. A consulting fi
 
 Before, you were paying for junior time to build a solution (as automated as possible) but because it was built by juniors and checked by the pyramid, you could trust the numbers. And therefore you could trust the conclusion delivered very confidently with industry expertise by smart partners/principals. Because we all have access to the same tools for automation, now you pay for the ad-hoc software which takes time to develop and several attempts to fine tune. The confidence in the accuracy of the information and in the ability to synthetise it into concrete recommendations comes from building the automation tool and testing it.
 
-## Consulting has is now tailored software as a service
+## Consulting became tailored software as a service with no need for scaling
 
 In short, under this new paradigm, unless a consulting firm is sure about how they built the data, delivering it with confidence is just not enough. In the world of AI, decisions need to be “understandable […] and [delivered] by people who are clearly accountable [i.e. would have tested it themselves]” (Duncan, Anderson & Saviano 2025). **In this new paradigm, consulting firms deliver tailored software as a service** (the software also produces the PPT output if needed) and the advisory comes from the synthesis of the data that happens through the creation of the automated analysis solution. In this new paradigm a-priori frameworks are important to create the structure of the analysis, but empirical realignment coming from wider amounts of data and from many more sources of data is required. 
 
