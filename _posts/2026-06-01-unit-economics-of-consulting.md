@@ -19,11 +19,11 @@ However, the point missed by these articles, is that the technological change th
 
 Under the new paradigm, the scale of data is no longer an issue. A consulting firm can now manage large amounts of data from disaggregated sources (even conducting expert interviews at scale through voice activated solutions) because the cost of creating ad-hoc software is virtually zero; in a similar way that Excel is still basically free. The cost of testing it and making sure it works, isn’t. The knowledge you are now paying for is not only industry expertise and the recommendations that come from years of experience, it is the ability to create a solution that manages information at scale in a replicable, stress-tested way.
 
-## The new paradigm requires the deliverable to be built and tested by the person with expertise
+### The new paradigm requires the deliverable to be built and tested by the person with expertise
 
 Before, you were paying for junior time to build a solution (as automated as possible) but because it was built by juniors and checked by the pyramid, you could trust the numbers. And therefore you could trust the conclusion delivered very confidently with industry expertise by smart partners/principals. Because we all have access to the same tools for automation, now you pay for the ad-hoc software which takes time to develop and several attempts to fine tune. The confidence in the accuracy of the information and in the ability to synthetise it into concrete recommendations comes from building the automation tool and testing it.
 
-## Consulting became tailored software as a service with no need for scaling
+### Tailored software as a service with no need for scaling
 
 In short, under this new paradigm, unless a consulting firm is sure about how they built the data, delivering it with confidence is just not enough. In the world of AI, decisions need to be “understandable […] and [delivered] by people who are clearly accountable [i.e. would have tested it themselves]” (Duncan, Anderson & Saviano 2025). **In this new paradigm, consulting firms deliver tailored software as a service** (the software also produces the PPT output if needed) and the advisory comes from the synthesis of the data that happens through the creation of the automated analysis solution. In this new paradigm a-priori frameworks are important to create the structure of the analysis, but empirical realignment coming from wider amounts of data and from many more sources of data is required. 
 
