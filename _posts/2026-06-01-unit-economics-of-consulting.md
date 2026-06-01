@@ -5,27 +5,31 @@ subtitle: "We are living under a major structural change: the transformation of 
 date: 2026-05-27
 tag: "Consulting & AI"
 ---
-##The rumors of Consulting's demise are greatly exaggerated
+## The rumors of Consulting's demise are greatly exaggerated
 
 The death of the consulting industry has been predicted for a while now. In a now seminal article from the Harvard Business Review in 2013 (Christensen, Wang & Bever) the authors argued that consulting was on the cusp of disruption. One of the main reasons for this radical transformation was mentioned in point 4: “hard analytics” and “big data” were assured to restructure the industry. By 2025 in a comprehensive review of 612 (!) articles on AI and consulting that analysed 75 of them in depth (Bezuidenhout, Abbas, Mehmet, and Heffernan), the authors created a framework concluding on the “profound impact” AI would have on the industry. What is more, the articles selected stopped in 2022, i.e. before the launch of chat GPT. The AI-driven disruption of the consulting industry precedes the current technological change. Speaking about LLMs in 2025, in another HBR article (Duncan, Anderson & Saviano), practitioners argued that the “shape” of the consulting firm would be disrupted by AI; and more importantly by firms like the ones they run that are AI native. The old firms would become “slower, more expensive, and less relevant”, as opposed to the new firm that will require fewer people. 
 
-##Traditional Consulting firms define complexity as scale and industry knowledge
+## Traditional Consulting firms define complexity as scale and industry knowledge
+
 However, the point missed by these articles, is that the technological change that has been happening for the past 13 years and that has accelerated with AI has created a structural shift in the business model of consulting: **there has been a transformation in the Unit economics of complexity**. For the past 80 years we have been living under the same paradigm. Large companies were able to win large contracts (and therefore make more money), because they could offer analysis services at scale. In large contracts, complexity was a function of the amount of work that was required. A full global strategy for Coca Cola required an analysis of their operations in over 200 countries including expert interviews in at least 20 languages. A 50 bn USD Commercial due diligence demanded a 500 pages deck, scouring over large amount of disaggregated data and integrating several workstreams. Complexity was also a function of the different elements coming into the analysis, but that “industry knowledge” was brought by the specialised partners and principals. The scale complexity was solved by juniors, the knowledge complexity solved by seniors. But the senior could only provide their point of view once the data was gathered, the problem framed and the numbers checked. The reason why you had to rely on juniors is that, at the same time, the cost of creating software for one problem was impractical for large organisations (the McKinsey/McKinsey solutions divide, which has morphed into a McKinsey/ McKinsey Lilli divide) and completely out of cost for medium to small ones. 
 
 > AI has created a structural shift in the business model of consulting: **there has been a transformation in the Unit economics of complexity**
 
-##The scale of data analysis is no longer an issue wort paying a premium
+## The scale of data analysis is no longer an issue wort paying a premium
+
 Under the new paradigm, the scale of data is no longer an issue. A consulting firm can now manage large amounts of data from disaggregated sources (even conducting expert interviews at scale through voice activated solutions) because the cost of creating ad-hoc software is virtually zero; in a similar way that Excel is still basically free. The cost of testing it and making sure it works, isn’t. The knowledge you are now paying for is not only industry expertise and the recommendations that come from years of experience, it is the ability to create a solution that manages information at scale in a replicable, stress-tested way.
 
-##The new paradigm requires the deliverable to be built and tested by the person with expertise
+## The new paradigm requires the deliverable to be built and tested by the person with expertise
+
 Before, you were paying for junior time to build a solution (as automated as possible) but because it was built by juniors and checked by the pyramid, you could trust the numbers. And therefore you could trust the conclusion delivered very confidently with industry expertise by smart partners/principals. Because we all have access to the same tools for automation, now you pay for the ad-hoc software which takes time to develop and several attempts to fine tune. The confidence in the accuracy of the information and in the ability to synthetise it into concrete recommendations comes from building the automation tool and testing it.
 
-##Consulting has is now tailored software as a service
+## Consulting has is now tailored software as a service
+
 In short, under this new paradigm, unless a consulting firm is sure about how they built the data, delivering it with confidence is just not enough. In the world of AI, decisions need to be “understandable […] and [delivered] by people who are clearly accountable [i.e. would have tested it themselves]” (Duncan, Anderson & Saviano 2025). **In this new paradigm, consulting firms deliver tailored software as a service** (the software also produces the PPT output if needed) and the advisory comes from the synthesis of the data that happens through the creation of the automated analysis solution. In this new paradigm a-priori frameworks are important to create the structure of the analysis, but empirical realignment coming from wider amounts of data and from many more sources of data is required. 
 
 >**Consulting firms deliver tailored software as a service** (the software also produces the PPT output if needed) and the advisory comes from the synthesis of the data
 
-##Democratisation of consulting services
+## Democratisation of consulting services
 The two main implications of this new paradigm are clear.
 
 First of all, **the democratisation of consulting**: you can ask more questions. That means PE portfolio companies but also 500-1,000 employee firms don’t need to have one BCG interaction once every four years (when they are about to sell), it means that you can ask more precise and perhaps more complex strategic questions more often. 
