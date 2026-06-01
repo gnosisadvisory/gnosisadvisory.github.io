@@ -15,7 +15,7 @@ However, the point missed by these articles, is that the technological change th
 
 > AI has created a structural shift in the business model of consulting: **there has been a transformation in the Unit economics of complexity**
 
-## The scale of data analysis is no longer an issue wort paying a premium
+## The scale of data analysis is no longer an issue for which it is worth paying a premium
 
 Under the new paradigm, the scale of data is no longer an issue. A consulting firm can now manage large amounts of data from disaggregated sources (even conducting expert interviews at scale through voice activated solutions) because the cost of creating ad-hoc software is virtually zero; in a similar way that Excel is still basically free. The cost of testing it and making sure it works, isn’t. The knowledge you are now paying for is not only industry expertise and the recommendations that come from years of experience, it is the ability to create a solution that manages information at scale in a replicable, stress-tested way.
 
