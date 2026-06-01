@@ -176,6 +176,72 @@ title: Research & Perspectives | Gnosis Advisory
             .insights-hero h1 { font-size: 2.2rem; }
             .posts-grid { grid-template-columns: 1fr; }
         }
+
+        /* Hamburger menu */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 24px;
+            height: 18px;
+            cursor: pointer;
+            z-index: 200;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+
+        .menu-toggle span {
+            display: block;
+            width: 100%;
+            height: 2px;
+            background: var(--navy);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle.open span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+        .menu-toggle.open span:nth-child(2) { opacity: 0; }
+        .menu-toggle.open span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: white;
+            z-index: 150;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .mobile-nav.open { display: flex; }
+
+        .mobile-nav a {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--navy);
+            text-decoration: none;
+            opacity: 0.85;
+        }
+
+        .mobile-nav a:hover { opacity: 1; color: var(--gold); }
+
+        .mobile-nav .contact-btn {
+            background: var(--navy);
+            color: white !important;
+            padding: 0.8rem 2rem;
+            border-radius: 4px;
+            font-size: 1.2rem;
+            opacity: 1 !important;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle { display: flex; }
+            nav { display: none; }
+        }
     </style>
 </head>
 <body>
@@ -194,7 +260,7 @@ title: Research & Perspectives | Gnosis Advisory
     <div class="insights-hero">
         <h1>Research &amp; Perspectives</h1>
         <div class="hero-underline"></div>
-        <p>Analysis on commercial due diligence, growth strategy, geopolitical risk, and private equity.</p>
+        <p>Perspectives on markets, strategy, and investment — drawing on 66+ transactions across private equity, corporate strategy, and geopolitical intelligence.</p>
     </div>
 
     <div class="insights-container">
@@ -227,5 +293,24 @@ title: Research & Perspectives | Gnosis Advisory
         <p>&copy; {% assign y = 'now' | date: "%Y" %}{{ y }} Gnosis Advisory Ltd. Registered in England &amp; Wales. Company No. 16737803.</p>
     </footer>
 
+
+    <script>
+        const toggle = document.querySelector('.menu-toggle');
+        const mobileNav = document.querySelector('.mobile-nav');
+        if (toggle && mobileNav) {
+            toggle.addEventListener('click', () => {
+                toggle.classList.toggle('open');
+                mobileNav.classList.toggle('open');
+                document.body.style.overflow = mobileNav.classList.contains('open') ? 'hidden' : '';
+            });
+            mobileNav.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    toggle.classList.remove('open');
+                    mobileNav.classList.remove('open');
+                    document.body.style.overflow = '';
+                });
+            });
+        }
+    </script>
 </body>
 </html>
