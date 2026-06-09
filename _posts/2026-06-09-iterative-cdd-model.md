@@ -3,7 +3,8 @@ title: "The Iterative CDD Model"
 date: 2026-06-09
 tag: Commercial Due Diligence
 subtitle: "The traditional CDD process was sequential by necessity (massive teams, siloed workstreams, conclusions reached before the research was finished). Here, I argue that the deliverable is no longer a static document but a dynamic architecture. That changes what questions you can ask, how you size a market, and whether the real brief finally gets answered"
-image: /assets/images/consulting-model-diagram.png
+image: /assets/images/consulting_model_diagram.png
+description: "The traditional CDD process was sequential by necessity — siloed workstreams, conclusions reached before the research was finished. Here is what the iterative model looks like in practice."
 ---
 
 ## Old model: vertical and sequential, the assumption dictates the process.
