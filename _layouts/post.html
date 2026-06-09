@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page.title }} | Gnosis Advisory</title>
-    <meta name="description" content="{{ page.excerpt | strip_html | truncate: 160 }}">
+    <meta name="description" content="{{ page.description | default: page.excerpt | strip_html | truncate: 160 }}">
     
     <!-- Open Graph / LinkedIn -->
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="Gnosis Advisory">
     <meta property="og:title" content="{{ page.title }} | Gnosis Advisory">
-    <meta property="og:description" content="{{ page.excerpt | strip_html | truncate: 160 }}">
+    <meta property="og:description" content="{{ page.description | default: page.excerpt | strip_html | truncate: 160 }}">
     <meta property="og:url" content="{{ page.url | absolute_url }}">
     {% if page.image %}
     <meta property="og:image" content="{{ page.image | absolute_url }}">
