@@ -2,6 +2,7 @@ title: Gnosis Advisory
 description: Strategic consulting for private equity and corporates.
 url: "https://gnosisadvisory.co.uk"
 baseurl: ""
+timezone: Europe/London
 
 # Blog settings
 permalink: /insights/:year/:title/
