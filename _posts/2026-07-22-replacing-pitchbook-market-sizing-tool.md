@@ -1,8 +1,8 @@
 ---
-title: "Replacing a £50,000 Subscription with a Market Sizing Tool"
+title: "My market sizing tool replaced a £50,000 subscription"
 date: 2026-07-22
 tag: Commercial Due Diligence
-subtitle: "The hidden cost in every CDD project is not the analysis. It has always been data collection."
+subtitle: "The hidden cost in every CDD and strategy project is not the analysis. It has always been data collection."
 image: /assets/images/market_sizing_output_automotive.png
 description: "I built a tool that reads Companies House PDFs at scale, extracts financials automatically, and produces branded market sizing outputs — at project cost rather than a £50,000 annual subscription."
 ---
@@ -10,7 +10,10 @@ In 2023, I coordinated a team of analysts to build a dashboard for a large Suppl
 
 Market sizing has been the central question in every CDD and growth project I have run since then; answered either by teams manually extracting financials from Companies House or by paying five-figure subscriptions to platforms like Pitchbook.
 
-By creating our own products, we accomplished three things: cost reduction, an auditable methodology, and proprietary processes. I no longer pay for a database provider, which can run between $10,000 and $70,000, because I can show that each data point was created from reputable open sources, and I control the process. The process took around a month to develop and requires careful testing to avoid errors.
+By creating our own products, we accomplished three things: cost reduction, an auditable methodology, and proprietary processes. **I no longer pay for a database provider, which can run between $10,000 and $70,000**, because I can show that each data point was created from reputable open sources, and I control the process. The tool took around a month to develop and requires careful testing to avoid errors.
+
+> It doesn’t give us a strategic edge per se, but reassures clients, in the same way that knowing how to size a market and build a discounted cashflow model is theoretically something anyone with an Excel account could do, but you wouldn’t hire just anyone to do it. 
+
 This has provided the firm with some credibility in a market where methodology is often opaque, and it has also provided a systematic paper trail that is not yet offered by large players or the data providers they use. It doesn’t give us a strategic edge per se, but reassures clients, in the same way that knowing how to size a market and build a discounted cashflow model is theoretically something anyone with an Excel account could do, but you wouldn’t hire just anyone to do it. 
 
 ## An Automated market sizing product
@@ -35,7 +38,6 @@ Although any LLM is fully able to read images and get information from them, it 
 The solution was creating an OCR reader that recognised text and optimised for speed. But that created a second difficulty around recording data at scale to create readable databases. 
 
 ### Recording data at  scale
-
 
 The main issue is that all the financial reporting on Companies House has unstructured reporting (and we already established that an LLM approach to analyse all this data is costly). Documents have a different format even if they share a semantic architecture. A person reading a report can easily identify that the P&L reporting is on p.25 one year and p.28 the other. For a machine, this is a considerably more complex task.  
 The way we solved this was creating a multi-step data analysis algorithm. It first ensured each PDF was matched to a specific company (linking it to a unique identifier: the Companies House number). This is particularly  robust, given that it connects to the full Companies House CSV (over 5.7 million lines).  This step was essential for year on year analysis and referencing. The unique identifier algorithm helped create a searchable database, but was not enough to identify where the data was located.
