@@ -12,8 +12,6 @@ Market sizing has been the central question in every CDD and growth project I ha
 
 By creating our own products, we accomplished three things: cost reduction, an auditable methodology, and proprietary processes. **I no longer pay for a database provider, which can run between $10,000 and $70,000**, because I can show that each data point was created from reputable open sources, and I control the process. The tool took around a month to develop and requires careful testing to avoid errors.
 
-> It doesn’t give us a strategic edge per se, but reassures clients, in the same way that knowing how to size a market and build a discounted cashflow model is theoretically something anyone with an Excel account could do, but you wouldn’t hire just anyone to do it. 
-
 This has provided the firm with some credibility in a market where methodology is often opaque, and it has also provided a systematic paper trail that is not yet offered by large players or the data providers they use. It doesn’t give us a strategic edge per se, but reassures clients, in the same way that knowing how to size a market and build a discounted cashflow model is theoretically something anyone with an Excel account could do, but you wouldn’t hire just anyone to do it. 
 
 ## An Automated market sizing product
@@ -24,7 +22,7 @@ What we have developed takes one or multiple SIC codes, queries the Companies Ho
 The tool goes from raw PDFs (1,000 pages of them) to producing a branded output that is client ready. We have since validated it across grocery retail, logistics, energy sectors and a variety of mid-market segments that need to be kept secret for confidentiality reasons.
 
 ![Market sizing output of the Automotive Manufacturing sector](/assets/images/automotive_market_sizing_full.png)
-*Image 1.** Market sizing output of the Automotive Manufacturing sector.*
+*Image 1. Market sizing output of the Automotive Manufacturing sector.*
 
 ## The main hurdles. 
 The tool was not “Vibe Coded” (i.e. prompted Claude to build a solution that looks polished but cannot be verified) but rather tested and applied to real markets with existing market data. The main issues we had to face were threefold: reading data from documents, recording it at scale, and creating estimation benchmarks for unavailable data.
