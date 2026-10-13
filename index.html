@@ -458,12 +458,14 @@
 
         /* Case Studies Section */
         .case-studies-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             gap: 2rem;
             max-width: 900px;
             margin: 0 auto;
         }
+        .case-studies-grid > .case-study-card { flex: 0 0 calc(50% - 1rem); }
 
         .case-study-card {
             background: var(--white);
@@ -506,18 +508,12 @@
         .case-filter:hover { border-color: var(--gold); }
         .case-filter.active { background: var(--navy); border-color: var(--navy); color: #fff; }
         .case-area { display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--navy); background: rgba(201,169,97,0.22); padding: 0.25rem 0.65rem; border-radius: 999px; margin-bottom: 0.7rem; }
-        .case-study-card.hidden { display: none; }
+        .case-study-card.hidden, .case-studies-grid > .case-study-card.hidden { display: none !important; }
         .case-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin: 0 0 1.75rem; }
         .case-stat { background: var(--off-white); border-top: 3px solid var(--gold); border-radius: 4px; padding: 0.85rem 0.6rem; text-align: center; }
         .case-stat strong { display: block; font-family: 'Cormorant Garamond', serif; font-size: 1.7rem; color: var(--navy); line-height: 1.1; }
         .case-stat span { font-size: 0.75rem; color: var(--gray); line-height: 1.3; display: block; margin-top: 0.25rem; }
         @media (max-width: 600px) { .case-stats { grid-template-columns: repeat(2, 1fr); } }
-        .case-study-card.featured { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; align-items: stretch; }
-        .case-study-card.featured .case-study-image-wrap { aspect-ratio: auto; height: 100%; min-height: 260px; border-bottom: 0; border-right: 1px solid var(--gray-light); }
-        .case-study-card.featured .case-study-content { padding: 2rem; display: flex; flex-direction: column; justify-content: center; }
-        .case-study-card.featured .case-area { align-self: flex-start; }
-        .case-study-card.featured h3 { font-size: 1.6rem; }
-        @media (max-width: 768px) { .case-study-card.featured { grid-template-columns: 1fr; } .case-study-card.featured .case-study-image-wrap { aspect-ratio: 4 / 3; height: auto; min-height: 0; border-right: 0; border-bottom: 1px solid var(--gray-light); } }
 
         .case-study-content {
             padding: 1.5rem;
@@ -802,9 +798,7 @@
                 grid-template-columns: 1fr;
             }
 
-            .case-studies-grid {
-                grid-template-columns: 1fr;
-            }
+            .case-studies-grid > .case-study-card { flex-basis: 100%; }
 
             .framework-title { font-size: 1.2rem; }
             .framework-subtitle { font-size: 0.9rem; margin-bottom: 1.5rem; }
@@ -1154,8 +1148,8 @@
             <button class="case-filter" data-filter="insights" onclick="filterCases('insights')">Strategic Impact &amp; Insights</button>
         </div>
         <div class="case-studies-grid">
-            <!-- Case Study 5: International Expansion -->
-            <div data-area="expansion" class="case-study-card featured" onclick="openModal('modal5')">
+<!-- Case Study 5: International Expansion -->
+            <div data-area="expansion" class="case-study-card" onclick="openModal('modal5')">
                 <div class="case-study-image-wrap"><img src="case5-route-to-market.png" alt="Route to market: how a sale happens in the US" class="case-study-image"></div>
                 <div class="case-study-content">
                     <span class="case-area">Expansion &amp; Growth Strategy</span>
@@ -1165,8 +1159,8 @@
                 </div>
             </div>
 
-            <!-- Case Study 6: Global Partnership Rollout -->
-            <div data-area="expansion" class="case-study-card featured" onclick="openModal('modal6')">
+<!-- Case Study 6: Global Partnership Rollout -->
+            <div data-area="expansion" class="case-study-card" onclick="openModal('modal6')">
                 <div class="case-study-image-wrap"><img src="case6-long-tail.png" alt="Reaching the long tail through platform partners" class="case-study-image"></div>
                 <div class="case-study-content">
                     <span class="case-area">Expansion &amp; Growth Strategy</span>
@@ -1176,28 +1170,7 @@
                 </div>
             </div>
 
-            <!-- Case Study 7: Buy-and-Build Strategy -->
-            <div data-area="cdd" class="case-study-card featured" onclick="openModal('modal7')">
-                <div class="case-study-image-wrap"><img src="case7-acquisition-matrix.png" alt="Provider positioning: margin versus client base" class="case-study-image"></div>
-                <div class="case-study-content">
-                    <span class="case-area">Commercial Due Diligence</span>
-                    <h3>Validating a Buy-and-Build Thesis for a PE-Backed Law Firm</h3>
-                    <div class="case-study-meta">Private Equity • Legal Services</div>
-                    <p class="case-study-preview">Mapped 120 legal providers and ran 10 expert interviews to test a new owner's acquisition thesis. No target had it all, but we showed which ones delivered margin and which delivered clients...</p>
-                </div>
-            </div>
-            <!-- Case Study 1: PE Market Sizing -->
-            <div data-area="cdd" class="case-study-card" onclick="openModal('modal1')">
-                <div class="case-study-image-wrap"><img src="case1-pe-market-sizing.png" alt="PE Market Sizing Analysis" class="case-study-image"></div>
-                <div class="case-study-content">
-                    <span class="case-area">Commercial Due Diligence</span>
-                    <h3>PE Market Sizing for Roll-Up Strategy</h3>
-                    <div class="case-study-meta">Private Equity • B2B Software</div>
-                    <p class="case-study-preview">Built bottom-up TAM/SAM/SOM model to evaluate acquisition opportunity in compliance software market...</p>
-                </div>
-            </div>
-
-            <!-- Case Study 2: Venezuela Intelligence -->
+<!-- Case Study 2: Venezuela Intelligence -->
             <div data-area="expansion" class="case-study-card" onclick="openModal('modal2')">
                 <div class="case-study-image-wrap"><img src="case2-venezuela-intelligence.png" alt="Venezuela Political Risk Assessment" class="case-study-image"></div>
                 <div class="case-study-content">
@@ -1208,7 +1181,29 @@
                 </div>
             </div>
 
-            <!-- Case Study 3: School Engagement -->
+<!-- Case Study 7: Buy-and-Build Strategy -->
+            <div data-area="cdd" class="case-study-card" onclick="openModal('modal7')">
+                <div class="case-study-image-wrap"><img src="case7-acquisition-matrix.png" alt="Provider positioning: margin versus client base" class="case-study-image"></div>
+                <div class="case-study-content">
+                    <span class="case-area">Commercial Due Diligence</span>
+                    <h3>Validating a Buy-and-Build Thesis for a PE-Backed Law Firm</h3>
+                    <div class="case-study-meta">Private Equity • Legal Services</div>
+                    <p class="case-study-preview">Mapped 120 legal providers and ran 10 expert interviews to test a new owner's acquisition thesis. No target had it all, but we showed which ones delivered margin and which delivered clients...</p>
+                </div>
+            </div>
+
+<!-- Case Study 1: PE Market Sizing -->
+            <div data-area="cdd" class="case-study-card" onclick="openModal('modal1')">
+                <div class="case-study-image-wrap"><img src="case1-pe-market-sizing.png" alt="PE Market Sizing Analysis" class="case-study-image"></div>
+                <div class="case-study-content">
+                    <span class="case-area">Commercial Due Diligence</span>
+                    <h3>PE Market Sizing for Roll-Up Strategy</h3>
+                    <div class="case-study-meta">Private Equity • B2B Software</div>
+                    <p class="case-study-preview">Built bottom-up TAM/SAM/SOM model to evaluate acquisition opportunity in compliance software market...</p>
+                </div>
+            </div>
+
+<!-- Case Study 3: School Engagement -->
             <div data-area="insights" class="case-study-card" onclick="openModal('modal3')">
                 <div class="case-study-image-wrap"><img src="case3-school-engagement.png" alt="School Engagement Strategy" class="case-study-image"></div>
                 <div class="case-study-content">
@@ -1219,7 +1214,7 @@
                 </div>
             </div>
 
-            <!-- Case Study 4: 3PL Market Intelligence -->
+<!-- Case Study 4: 3PL Market Intelligence -->
             <div data-area="insights" class="case-study-card" onclick="openModal('modal4')">
                 <div class="case-study-image-wrap"><img src="case4-dhl-market-share.png" alt="UK 3PL Market Share Analysis" class="case-study-image"></div>
                 <div class="case-study-content">
