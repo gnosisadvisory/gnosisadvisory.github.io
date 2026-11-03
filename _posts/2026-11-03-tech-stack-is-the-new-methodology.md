@@ -16,13 +16,17 @@ I was working for a boutique strategy firm just after covid and we were trying t
 
 A German sociologist, Michael Hartmann, who studies how top managers are recruited, described how hiring firms sometimes put CEOs forward for roles partly because of the strength of their handshake. These small daily signals, what Bourdieu called “habitus”, told the board that the candidate knew the market, but also that he knew how to behave. They worked because everyday actions are signs of the larger social structure behind a person. A deck used to work in the same way. A deck has to look good, otherwise we do not trust the data, and a polished deck was hard to produce. It took a team and several weeks, so it signalled that a real process stood behind it.
 
-That signal has now collapsed. Since the advent of LLMs, any firm, and any individual, has access to the same tools that we do, and a good-looking deck can be produced in an afternoon. The deck can look right while the data underneath is wrong, and the reader cannot tell. The same logic applies to large firms as much as to small ones: if a polished deck is no longer proof of a rigorous process, everyone will need something else to show. McKinsey’s [QuantumBlack Labs](https://ceros.mckinsey.com/qb-labs-mobile-1-1/p/1), for example, lists 25+ proprietary tools (as of November 2026), which suggests the large firms can see where credibility is moving.
+That signal has now collapsed. Since the advent of LLMs, any firm, and any individual, has access to the same tools that we do, and a good-looking deck can be produced in an afternoon. **The deck can look right while the data underneath is wrong, and the reader cannot tell.** The same logic applies to large firms as much as to small ones: if a polished deck is no longer proof of a rigorous process, everyone will need something else to show. McKinsey’s [QuantumBlack Labs](https://ceros.mckinsey.com/qb-labs-mobile-1-1/p/1), for example, lists 25+ proprietary tools (as of November 2026), which suggests the large firms can see where credibility is moving.
+
+> The deck can look right while the data underneath is wrong, and the reader cannot tell.
 
 LLMs have distorted the “vibes” of what makes a good presentation. Some experienced consultants still cannot use them to produce deliverables that “feel” professional, and some outputs still feel “AI”. But more and more practitioners will be able to produce nice-looking work. The real differentiator will no longer be how it looks, but what is under the hood.
 
 ## What cannot be faked overnight
 
-What cannot be faked overnight is a set of connected tools that has been through many projects, because that takes time. Take our market sizing tool. We started with the sizing itself, then realised the real problem was the financial data, so we worked on extraction. Then we automated the download of filings from Companies House, which meant that adding fifteen new companies to a test cost next to nothing. We could test more and more cases, and every case that broke the tool went into a testing tool as an edge case. We used the agent only to find where the tool failed, and fixed each failure in the code. Each tool fed the next: faster downloads gave us more test cases, more test cases gave us a better extractor, and a better extractor gave us a better market model. In its first version, on our rough count, around 60% of the figures came out right, mostly because the tool did not recognise the same company across different filings. Revenue now matches independent, machine-readable filings in 97% of the cases we could check. Lines further down the accounts, such as cash and depreciation, are less reliable, and the remaining gaps are corrected with Claude.
+**What cannot be faked overnight is a set of connected tools that has been through many projects, because that takes time.** Take our market sizing tool. We started with the sizing itself, then realised the real problem was the financial data, so we worked on extraction. Then we automated the download of filings from Companies House, which meant that adding fifteen new companies to a test cost next to nothing. We could test more and more cases, and every case that broke the tool went into a testing tool as an edge case. We used the agent only to find where the tool failed, and fixed each failure in the code. Each tool fed the next: faster downloads gave us more test cases, more test cases gave us a better extractor, and a better extractor gave us a better market model. In its first version, on our rough count, around 60% of the figures came out right, mostly because the tool did not recognise the same company across different filings. Revenue now matches independent, machine-readable filings in 97% of the cases we could check. Lines further down the accounts, such as cash and depreciation, are less reliable, and the remaining gaps are corrected with Claude.
+
+> What cannot be faked overnight is a set of connected tools that has been through many projects, because that takes time.
 
 The download tool alone saves about three hours at the start of every project. Over five projects that is fifteen hours, and the fifth project starts from a better tool than the first.
 
@@ -34,7 +38,9 @@ The most telling sign of an incomplete solution is the swarm. It may calculate t
 
 ## A tech stack is an institution
 
-A company is a type of institution: something that outlasts the people inside it. A freelancer’s knowledge leaves with them at the end of each project. A tech stack holds what has been learned, so it is what turns a freelancer into a firm. A swarm learns nothing that stays, so it does not create a company. That is my answer to a question I asked myself this year: why build a consultancy and not a freelance career?
+A company is a type of institution: something that outlasts the people inside it. A freelancer’s knowledge leaves with them at the end of each project. **A tech stack holds what has been learned, so it is what turns a freelancer into a firm.** A swarm learns nothing that stays, so it does not create a company. That is my answer to a question I asked myself this year: why build a consultancy and not a freelance career?
+
+> A tech stack holds what has been learned, so it is what turns a freelancer into a firm.
 
 At Gnosis Advisory we have spent the better part of a year building a native tech stack of 16 tools. They range from back-office tools to data products and automated delivery, covering research from financial modelling to expert interview data and the systematic review of primary sources. The stack is scalable and works for small engagements and large projects.
 
@@ -83,7 +89,7 @@ If you are choosing an adviser, three questions will tell you most of what you n
 2. Can you show me the code behind a number in your deck?
 3. What happens to your process when the model changes?
 
-The answers tell you whether you are hiring a firm or a power user.
+**The answers tell you whether you are hiring a firm or a power user.**
 
 [^1]: The BCG matrix is a 2x2 portfolio tool, introduced by Boston Consulting Group in the early 1970s, that plots each business unit by market growth rate and relative market share to sort it into one of four categories: stars (high growth, high share), cash cows (low growth, high share), question marks (high growth, low share) and dogs (low growth, low share), with cash from the cash cows funding investment in the stars and question marks.
 
