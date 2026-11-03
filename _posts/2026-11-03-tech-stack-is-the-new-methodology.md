@@ -3,6 +3,7 @@ title: "The tech stack is the new methodology"
 date: 2026-11-03
 tag: AI Consulting
 subtitle: "Any deck can now look perfect. What cannot be faked overnight is a set of connected tools that has been through many projects."
+excerpt: "Any deck can now look perfect. What cannot be faked overnight is a set of connected tools that has been through many projects."
 image: /assets/images/gnosis_tech_stack_tool_map.png
 description: "Any deck can now look perfect. What cannot be faked overnight is a set of connected tools, improved project after project. Why the tech stack is the new methodology."
 ---
